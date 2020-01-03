@@ -2,7 +2,7 @@
  * @file multiprocesses_time_series.hpp
  * @author Vincent Berenz
  * license License BSD-3-Clause
- * @copyright Copyright (c) 2019, Max Planck Gesellshaft.
+ * @copyright Copyright (c) 2019, Max Planck Gesellschaft.
  */
 
 #pragma once
@@ -43,7 +43,7 @@ static const std::string shm_condition_variable("_condition_variable");
  */
 template <typename T = int>
 class MultiprocessesTimeSeries
-    : public internal::TimeSeriesBase<internal::MULTIPROCESSES, T>
+    : public internal::TimeSeriesBase<internal::MultiProcesses, T>
 {
 public:
     /**
@@ -51,39 +51,41 @@ public:
      * memory segment
      * @param segment_id the id of the segment to point to
      * @param max_length max number of elements in the time series
-     * @param clear_on_destruction if true, the shared memory segment
-     * will be wiped on destruction. If other instances are pointing to this
-     * segment, they may crash or hang.
+     * @param leader if true, the shared memory segment will initialize
+     * the shared time series, and wiped the related shared memory on destruction. 
+     * Instantiating a  first MultiprocessesTimeSeries with leader set to false
+     * will result in undefined behavior. When the leader instance is destroyed,
+     * other instances are pointing to the shared segment may crash or hang.
      */
     MultiprocessesTimeSeries(std::string segment_id,
                              size_t max_length,
-                             bool clear_on_destruction = true,
+                             bool leader = true,
                              Index start_timeindex = 0)
-        : internal::TimeSeriesBase<internal::MULTIPROCESSES, T>(
+        : internal::TimeSeriesBase<internal::MultiProcesses, T>(
               max_length, start_timeindex),
           indexes_(segment_id + internal::shm_indexes,
                    4,
-                   clear_on_destruction,
+                   leader,
                    false)
     {
-        this->mutexPtr_ =
-            std::make_shared<internal::Mutex<internal::MULTIPROCESSES> >(
-                segment_id + internal::shm_mutex, clear_on_destruction);
-        this->conditionPtr_ = std::make_shared<
-            internal::ConditionVariable<internal::MULTIPROCESSES> >(
+        this->mutex_ptr_ =
+            std::make_shared<internal::Mutex<internal::MultiProcesses> >(
+                segment_id + internal::shm_mutex, leader);
+        this->condition_ptr_ = std::make_shared<
+            internal::ConditionVariable<internal::MultiProcesses> >(
             segment_id + internal::shm_condition_variable,
-            clear_on_destruction);
-        this->history_elementsPtr_ =
-            std::make_shared<internal::Vector<internal::MULTIPROCESSES, T> >(
+            leader);
+        this->history_elements_ptr_ =
+            std::make_shared<internal::Vector<internal::MultiProcesses, T> >(
                 max_length,
                 segment_id + internal::shm_elements,
-                clear_on_destruction);
-        this->history_timestampsPtr_ = std::make_shared<
-            internal::Vector<internal::MULTIPROCESSES, Timestamp> >(
+                leader);
+        this->history_timestamps_ptr_ = std::make_shared<
+            internal::Vector<internal::MultiProcesses, Timestamp> >(
             max_length,
             segment_id + internal::shm_timestamps,
-            clear_on_destruction);
-        if (clear_on_destruction)
+            leader);
+        if (leader)
         {
             write_indexes();
         }

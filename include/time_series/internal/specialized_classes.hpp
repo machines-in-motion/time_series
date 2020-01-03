@@ -16,8 +16,8 @@ namespace time_series
 {
 namespace internal
 {
-typedef std::integral_constant<int, 0> SINGLEPROCESS;
-typedef std::integral_constant<int, 1> MULTIPROCESSES;
+typedef std::integral_constant<int, 0> SingleProcess;
+typedef std::integral_constant<int, 1> MultiProcesses;
 
 // ------- Mutex ------- //
 
@@ -27,7 +27,7 @@ class Mutex
 };
 
 template <>
-class Mutex<SINGLEPROCESS>
+class Mutex<SingleProcess>
 {
 public:
     Mutex()
@@ -37,7 +37,7 @@ public:
 };
 
 template <>
-class Mutex<MULTIPROCESSES>
+class Mutex<MultiProcesses>
 {
 public:
     Mutex(std::string mutex_id, bool clean_on_destruction = false)
@@ -55,20 +55,20 @@ class Lock
 };
 
 template <>
-class Lock<SINGLEPROCESS>
+class Lock<SingleProcess>
 {
 public:
-    Lock(Mutex<SINGLEPROCESS> &mutex) : lock(mutex.mutex)
+    Lock(Mutex<SingleProcess> &mutex) : lock(mutex.mutex)
     {
     }
     std::unique_lock<std::mutex> lock;
 };
 
 template <>
-class Lock<MULTIPROCESSES>
+class Lock<MultiProcesses>
 {
 public:
-    Lock(Mutex<MULTIPROCESSES> &mutex) : lock(mutex.mutex)
+    Lock(Mutex<MultiProcesses> &mutex) : lock(mutex.mutex)
     {
     }
     shared_memory::Lock lock;
@@ -82,18 +82,18 @@ class ConditionVariable
 };
 
 template <>
-class ConditionVariable<SINGLEPROCESS>
+class ConditionVariable<SingleProcess>
 {
 public:
     void notify_all()
     {
         condition.notify_all();
     }
-    void wait(Lock<SINGLEPROCESS> &lock)
+    void wait(Lock<SingleProcess> &lock)
     {
         condition.wait(lock.lock);
     }
-    bool wait_for(Lock<SINGLEPROCESS> &lock, double max_duration_s)
+    bool wait_for(Lock<SingleProcess> &lock, double max_duration_s)
     {
         std::chrono::duration<double> chrono_duration(max_duration_s);
         std::cv_status status = condition.wait_for(lock.lock, chrono_duration);
@@ -103,7 +103,7 @@ public:
 };
 
 template <>
-class ConditionVariable<MULTIPROCESSES>
+class ConditionVariable<MultiProcesses>
 {
 public:
     ConditionVariable(std::string object_id, bool clear_on_destruction)
@@ -114,11 +114,11 @@ public:
     {
         condition.notify_all();
     }
-    void wait(Lock<MULTIPROCESSES> &lock)
+    void wait(Lock<MultiProcesses> &lock)
     {
         condition.wait(lock.lock);
     }
-    bool wait_for(Lock<MULTIPROCESSES> &lock, double max_duration_s)
+    bool wait_for(Lock<MultiProcesses> &lock, double max_duration_s)
     {
         long wait_time = static_cast<long>(max_duration_s * 1e6);
         return condition.timed_wait(lock.lock, wait_time);
@@ -136,7 +136,7 @@ class Vector
 // single process
 
 template <typename T>
-class Vector<SINGLEPROCESS, T>
+class Vector<SingleProcess, T>
 {
 public:
     Vector(std::size_t size) : v_(size)
@@ -162,7 +162,7 @@ private:
 // multi-processes
 
 template <typename T>
-class Vector<MULTIPROCESSES, T>
+class Vector<MultiProcesses, T>
 {
 public:
     Vector(std::size_t size,

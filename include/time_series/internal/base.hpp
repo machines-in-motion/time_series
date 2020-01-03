@@ -57,10 +57,10 @@ protected:
     // see specialized_classes.hpp for
     // implementations depending on P
     // (SINGLEPROCESS or MULTIPROCESS)
-    std::shared_ptr<Mutex<P> > mutexPtr_;
-    std::shared_ptr<ConditionVariable<P> > conditionPtr_;
-    std::shared_ptr<Vector<P, T> > history_elementsPtr_;
-    std::shared_ptr<Vector<P, Timestamp> > history_timestampsPtr_;
+    std::shared_ptr<Mutex<P> > mutex_ptr_;
+    std::shared_ptr<ConditionVariable<P> > condition_ptr_;
+    std::shared_ptr<Vector<P, T> > history_elements_ptr_;
+    std::shared_ptr<Vector<P, Timestamp> > history_timestamps_ptr_;
 };
 
 #include "base.hxx"

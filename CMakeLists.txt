@@ -54,7 +54,7 @@ catkin_package(
 ###########
 
 add_library(time_series
-  src/time_series.cpp)
+  src/multiprocesses_time_series.cpp)
 target_link_libraries(time_series
   ${CMAKE_THREAD_LIBS_INIT}
   ${Boost_LIBRARIES}

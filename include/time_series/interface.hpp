@@ -2,7 +2,7 @@
  * @file interface.hpp
  * @author Vincent Berenz
  * license License BSD-3-Clause
- * @copyright Copyright (c) 2019, Max Planck Gesellshaft.
+ * @copyright Copyright (c) 2019, Max Planck Gesellschaft.
  */
 
 #pragma once
@@ -36,7 +36,8 @@ public:
      */
     virtual Index newest_timeindex() = 0;
 
-    /*! \brief returns the number of element contained in the queue.
+    /*! \brief returns the number of element that has been contained in the queue, i.e.
+     *  the number of elements that have been added from the start.
      */
     virtual Index count_appended_elements() = 0;
 
@@ -66,9 +67,8 @@ public:
     virtual Timestamp timestamp_s(const Index &timeindex) = 0;
 
     /*! \brief Wait until the defined time index is reached. If the input time
-     *  is below the oldest time index that have been registered read an
-     * exception
-     * is return.
+     * is below the oldest time index that have been registered read an
+     * exception is return.
      */
     virtual bool wait_for_timeindex(
         const Index &timeindex,

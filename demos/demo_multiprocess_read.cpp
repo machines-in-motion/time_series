@@ -1,7 +1,7 @@
 /**
  * @file demo_multiprocess_read.cpp
  * @author Vincent Berenz
- * @copyright Copyright (c) 2019, Max Planck Gesellshaft.
+ * @copyright Copyright (c) 2019, Max Planck Gesellschaft.
  *
  * @brief Read data from a shared timed series.
  * This demo does nothing until demo_multiprocess_write
@@ -16,7 +16,7 @@
 #define TIMESERIES_SIZE 100
 
 typedef time_series::MultiprocessesTimeSeries<shared_memory::Item<10>>
-    TIMESERIES;
+    TimeSeries;
 
 /**
  * @brief read (and print) items written by demo_multiprocess_write
@@ -30,7 +30,7 @@ void run()
     // may hang or crash when this process exit
     bool clean_on_destruction = true;
 
-    TIMESERIES ts(SEGMENT_ID, TIMESERIES_SIZE, clean_on_destruction);
+    TimeSeries ts(SEGMENT_ID, TIMESERIES_SIZE, clean_on_destruction);
 
     while (true)
     {

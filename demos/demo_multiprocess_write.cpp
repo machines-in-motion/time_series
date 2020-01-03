@@ -1,7 +1,7 @@
 /**
  * @file demo_multiprocess_write.cpp
  * @author Vincent Berenz
- * @copyright Copyright (c) 2019, Max Planck Gesellshaft.
+ * @copyright Copyright (c) 2019, Max Planck Gesellschaft.
  *
  * @brief Write data into a shared timed series. The demo
  * demo_multiprocess_read is expected to be already running

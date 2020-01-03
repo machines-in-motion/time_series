@@ -2,7 +2,7 @@
  * @file time_series.hpp
  * @author Vincent Berenz
  * license License BSD-3-Clause
- * @copyright Copyright (c) 2019, Max Planck Gesellshaft.
+ * @copyright Copyright (c) 2019, Max Planck Gesellschaft.
  */
 
 #pragma once
@@ -32,22 +32,22 @@ namespace time_series
  * @brief Threadsafe time series
  */
 template <typename T = int>
-class TimeSeries : public internal::TimeSeriesBase<internal::SINGLEPROCESS, T>
+class TimeSeries : public internal::TimeSeriesBase<internal::SingleProcess, T>
 {
 public:
     TimeSeries(size_t max_length, Index start_timeindex = 0)
-        : internal::TimeSeriesBase<internal::SINGLEPROCESS, T>(max_length,
+        : internal::TimeSeriesBase<internal::SingleProcess, T>(max_length,
                                                                start_timeindex)
     {
-        this->mutexPtr_ =
-            std::make_shared<internal::Mutex<internal::SINGLEPROCESS> >();
-        this->conditionPtr_ = std::make_shared<
-            internal::ConditionVariable<internal::SINGLEPROCESS> >();
-        this->history_elementsPtr_ =
-            std::make_shared<internal::Vector<internal::SINGLEPROCESS, T> >(
+        this->mutex_ptr_ =
+            std::make_shared<internal::Mutex<internal::SingleProcess> >();
+        this->condition_ptr_ = std::make_shared<
+            internal::ConditionVariable<internal::SingleProcess> >();
+        this->history_elements_ptr_ =
+            std::make_shared<internal::Vector<internal::SingleProcess, T> >(
                 max_length);
-        this->history_timestampsPtr_ = std::make_shared<
-            internal::Vector<internal::SINGLEPROCESS, Timestamp> >(max_length);
+        this->history_timestamps_ptr_ = std::make_shared<
+            internal::Vector<internal::SingleProcess, Timestamp> >(max_length);
     }
 
 protected:

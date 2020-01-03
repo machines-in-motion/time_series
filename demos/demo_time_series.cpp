@@ -1,7 +1,7 @@
 /**
  * @file demo_time_series.cpp
  * @author Vincent Berenz
- * @copyright Copyright (c) 2019, Max Planck Gesellshaft.
+ * @copyright Copyright (c) 2019, Max Planck Gesellschaft.
  *
  * @brief basic usage of time series
  *
@@ -10,7 +10,7 @@
 #include "real_time_tools/thread.hpp"
 #include "time_series/time_series.hpp"
 
-bool RUNNING = true;
+bool g_running = true;
 
 /**
  * @brief Write values to the time series
@@ -24,7 +24,7 @@ void *producer(void *args)
         ts.append(i);
         real_time_tools::Timer::sleep_ms(100);
     }
-    RUNNING = false;
+    g_running = false;
     return nullptr;
 }
 
@@ -38,7 +38,7 @@ void run()
     real_time_tools::RealTimeThread thread;
     thread.create_realtime_thread(&producer, &ts);
 
-    while (RUNNING)
+    while (g_running)
     {
         int value = ts.newest_element();
         std::cout << "-> " << value << "\n";
