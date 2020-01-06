@@ -1,4 +1,4 @@
-#include "time_series/multiprocesses_time_series.hpp"
+#include "time_series/multiprocess_time_series.hpp"
 
 namespace time_series
 {

@@ -18,7 +18,7 @@
 
 // Mutex, ConditionVariable, Lock and Vector
 // use different implementation for TimeSeries and
-// MultiprocessesTimeSeries. Those are defined there.
+// MultiprocessTimeSeries. Those are defined there.
 #include "time_series/internal/specialized_classes.hpp"
 
 namespace time_series
@@ -36,13 +36,13 @@ static const std::string shm_condition_variable("_condition_variable");
 }
 
 /**
- * Multiprocesses Time Series. Several instances hosted
+ * Multiprocess Time Series. Several instances hosted
  * by different processes, if pointing
  * to the same shared memory segment (as specified by the segment_id),
  * may read/write from the same underlying time series.
  */
 template <typename T = int>
-class MultiprocessesTimeSeries
+class MultiprocessTimeSeries
     : public internal::TimeSeriesBase<internal::MultiProcesses, T>
 {
 public:
@@ -53,11 +53,11 @@ public:
      * @param max_length max number of elements in the time series
      * @param leader if true, the shared memory segment will initialize
      * the shared time series, and wiped the related shared memory on destruction. 
-     * Instantiating a  first MultiprocessesTimeSeries with leader set to false
+     * Instantiating a  first MultiprocessTimeSeries with leader set to false
      * will result in undefined behavior. When the leader instance is destroyed,
      * other instances are pointing to the shared segment may crash or hang.
      */
-    MultiprocessesTimeSeries(std::string segment_id,
+    MultiprocessTimeSeries(std::string segment_id,
                              size_t max_length,
                              bool leader = true,
                              Index start_timeindex = 0)
@@ -113,7 +113,7 @@ protected:
 
 /**
  * Wipe out the corresponding shared memory.
- * Useful if no instances of MultiprocessesTimeSeries cleared
+ * Useful if no instances of MultiprocessTimeSeries cleared
  * the memory on destruction.
  * Reusing the segment id of a non-wiped shared memory may result
  * in the newly created instance to hang.

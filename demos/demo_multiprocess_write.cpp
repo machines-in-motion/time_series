@@ -10,12 +10,12 @@
  */
 
 #include "shared_memory/demos/item.hpp"
-#include "time_series/multiprocesses_time_series.hpp"
+#include "time_series/multiprocess_time_series.hpp"
 
 #define SEGMENT_ID "demo_time_series_multiprocess"
 #define TIMESERIES_SIZE 100
 
-typedef time_series::MultiprocessesTimeSeries<shared_memory::Item<10>>
+typedef time_series::MultiprocessTimeSeries<shared_memory::Item<10>>
     TIMESERIES;
 
 void run()

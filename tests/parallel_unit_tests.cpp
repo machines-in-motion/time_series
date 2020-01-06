@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "time_series/multiprocesses_time_series.hpp"
+#include "time_series/multiprocess_time_series.hpp"
 #include "time_series/time_series.hpp"
 
 #include "real_time_tools/mutex.hpp"
@@ -119,7 +119,7 @@ void* input_to_time_series(void* void_ptr)
     {
         multiprocesses = true;
         bool clear_on_destruction = false;
-        time_series = new MultiprocessesTimeSeries<Type>(
+        time_series = new MultiprocessTimeSeries<Type>(
             SEGMENT_ID,
             get_time_series_length(thread_data.slow_),
             clear_on_destruction);
@@ -159,7 +159,7 @@ void* time_series_to_output(void* void_ptr)
     {
         multiprocesses = true;
         bool clear_on_destruction = false;
-        time_series = new MultiprocessesTimeSeries<Type>(
+        time_series = new MultiprocessTimeSeries<Type>(
             SEGMENT_ID,
             get_time_series_length(thread_data.slow_),
             clear_on_destruction);
@@ -198,7 +198,7 @@ bool test_parallel_time_series_history(bool slow, bool multiprocesses)
     if (multiprocesses)
     {
         bool clear_on_destruction = true;
-        master_time_series = new MultiprocessesTimeSeries<Type>(
+        master_time_series = new MultiprocessTimeSeries<Type>(
             SEGMENT_ID, get_time_series_length(slow), clear_on_destruction);
     }
 

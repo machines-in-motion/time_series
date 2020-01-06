@@ -2,7 +2,7 @@
 #include <gtest/gtest.h>
 #include <eigen3/Eigen/Core>
 
-#include "time_series/multiprocesses_time_series.hpp"
+#include "time_series/multiprocess_time_series.hpp"
 #include "time_series/time_series.hpp"
 
 #include "real_time_tools/mutex.hpp"
@@ -29,8 +29,8 @@ TEST(time_series_ut, basic)
 TEST(time_series_ut, basic_multi_processes)
 {
     clear_memory(SEGMENT_ID);
-    MultiprocessesTimeSeries<int> ts1(SEGMENT_ID, 100, true);
-    MultiprocessesTimeSeries<int> ts2(SEGMENT_ID, 100, false);
+    MultiprocessTimeSeries<int> ts1(SEGMENT_ID, 100, true);
+    MultiprocessTimeSeries<int> ts2(SEGMENT_ID, 100, false);
     ts1.append(10);
     Index index1 = ts1.newest_timeindex();
     Index index2 = ts2.newest_timeindex();
@@ -50,8 +50,8 @@ TEST(time_series_ut, serialized_multi_processes)
 {
     clear_memory(SEGMENT_ID);
 
-    MultiprocessesTimeSeries<Type> ts1(SEGMENT_ID, 100, true);
-    MultiprocessesTimeSeries<Type> ts2(SEGMENT_ID, 100, false);
+    MultiprocessTimeSeries<Type> ts1(SEGMENT_ID, 100, true);
+    MultiprocessTimeSeries<Type> ts2(SEGMENT_ID, 100, false);
 
     Type type1;
     ts1.append(type1);
@@ -67,8 +67,8 @@ TEST(time_series_ut, full_round)
 {
     clear_memory(SEGMENT_ID);
 
-    MultiprocessesTimeSeries<Type> ts1(SEGMENT_ID, 100, true);
-    MultiprocessesTimeSeries<Type> ts2(SEGMENT_ID, 100, false);
+    MultiprocessTimeSeries<Type> ts1(SEGMENT_ID, 100, true);
+    MultiprocessTimeSeries<Type> ts2(SEGMENT_ID, 100, false);
     for (int i = 0; i < 101; i++)
     {
         Type type;
@@ -113,7 +113,7 @@ TEST(time_series_ut, basic_newest_element)
 void *add_element_mp(void *)
 {
     bool clear_on_destruction = false;
-    MultiprocessesTimeSeries<int> ts(SEGMENT_ID, 100, clear_on_destruction);
+    MultiprocessTimeSeries<int> ts(SEGMENT_ID, 100, clear_on_destruction);
     usleep(2000);
     ts.append(20);
 }
@@ -122,7 +122,7 @@ TEST(time_series_ut, multiprocesses_newest_element)
 {
     clear_memory(SEGMENT_ID);
     bool clear_on_destruction = true;
-    MultiprocessesTimeSeries<int> ts(SEGMENT_ID, 100, clear_on_destruction);
+    MultiprocessTimeSeries<int> ts(SEGMENT_ID, 100, clear_on_destruction);
     RealTimeThread thread;
     thread.create_realtime_thread(&add_element_mp);
     int value = ts.newest_element();
@@ -144,7 +144,7 @@ TEST(time_series_ut, count_appended_elements)
 void *to_time_index(void *)
 {
     bool clear_on_destruction = false;
-    MultiprocessesTimeSeries<int> ts(SEGMENT_ID, 100, clear_on_destruction);
+    MultiprocessTimeSeries<int> ts(SEGMENT_ID, 100, clear_on_destruction);
     Index target_index = 10;
     Index index = 0;
     int c = 0;
@@ -162,7 +162,7 @@ TEST(time_series_ut, wait_for_time_index)
 {
     clear_memory(SEGMENT_ID);
     bool clear_on_destruction = true;
-    MultiprocessesTimeSeries<int> ts(SEGMENT_ID, 100, clear_on_destruction);
+    MultiprocessTimeSeries<int> ts(SEGMENT_ID, 100, clear_on_destruction);
     RealTimeThread thread;
     thread.create_realtime_thread(&to_time_index);
     Index target_index = 10;
