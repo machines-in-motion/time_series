@@ -71,6 +71,15 @@ endif(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 # demos #
 #########
 
+add_executable(demo_multiprocess_time_series
+  demos/demo_multiprocess_time_series.cpp)
+target_link_libraries(demo_multiprocess_time_series
+  ${CMAKE_THREAD_LIBS_INIT}
+  ${Boost_LIBRARIES}
+  ${catkin_LIBRARIES}
+  time_series
+  )
+
 add_executable(demo_time_series
   demos/demo_time_series.cpp)
 target_link_libraries(demo_time_series
@@ -79,6 +88,7 @@ target_link_libraries(demo_time_series
   ${catkin_LIBRARIES}
   time_series
 )
+
 add_executable(demo_multiprocess_write
   demos/demo_multiprocess_write.cpp)
 target_link_libraries(demo_multiprocess_write

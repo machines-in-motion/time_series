@@ -15,7 +15,7 @@ bool g_running = true;
 /**
  * @brief Write values to the time series
  */
-void *producer(void *args)
+THREAD_FUNCTION_RETURN_TYPE producer(void *args)
 {
     time_series::TimeSeries<int> &ts =
         *static_cast<time_series::TimeSeries<int> *>(args);
@@ -25,7 +25,7 @@ void *producer(void *args)
         real_time_tools::Timer::sleep_ms(100);
     }
     g_running = false;
-    return nullptr;
+    return THREAD_FUNCTION_RETURN_VALUE;
 }
 
 /**
