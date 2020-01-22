@@ -67,6 +67,19 @@ if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     )
 endif(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 
+################
+# applications #
+################
+
+add_executable(measure_delay
+  src/measure_delay.cpp)
+target_link_libraries(measure_delay
+  ${CMAKE_THREAD_LIBS_INIT}
+  ${Boost_LIBRARIES}
+  ${catkin_LIBRARIES}
+  time_series
+)
+
 #########
 # demos #
 #########
