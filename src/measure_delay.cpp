@@ -27,6 +27,83 @@
 #include <time_series/time_series.hpp>
 
 const unsigned int NUM_STEPS = 10000;
+
+
+namespace cereal
+{
+template <class Archive, class Derived>
+inline typename std::enable_if<
+    traits::is_output_serializable<BinaryData<typename Derived::Scalar>,
+                                   Archive>::value,
+    void>::type
+save(Archive& archive, const Eigen::PlainObjectBase<Derived>& object)
+{
+    typedef Eigen::PlainObjectBase<Derived> ArrT;
+
+    // only add dimensions to the serialized data when they are dynamic
+    if (ArrT::RowsAtCompileTime == Eigen::Dynamic)
+    {
+        archive(object.rows());
+    }
+    if (ArrT::ColsAtCompileTime == Eigen::Dynamic)
+    {
+        archive(object.cols());
+    }
+
+    archive(binary_data(object.data(),
+                        object.size() * sizeof(typename Derived::Scalar)));
+}
+
+template <class Archive, class Derived>
+inline typename std::enable_if<
+    traits::is_input_serializable<BinaryData<typename Derived::Scalar>,
+                                  Archive>::value,
+    void>::type
+load(Archive& archive, Eigen::PlainObjectBase<Derived>& object)
+{
+    typedef Eigen::PlainObjectBase<Derived> ArrT;
+
+    Eigen::Index rows = ArrT::RowsAtCompileTime, cols = ArrT::ColsAtCompileTime;
+    // information about dimensions are only serialized for dynamic-size types
+    if (rows == Eigen::Dynamic)
+    {
+        archive(rows);
+    }
+    if (cols == Eigen::Dynamic)
+    {
+        archive(cols);
+    }
+
+    object.resize(rows, cols);
+    archive(binary_data(object.data(),
+                        static_cast<std::size_t>(
+                            rows * cols * sizeof(typename Derived::Scalar))));
+}
+}  // namespace cereal
+
+
+typedef Eigen::Matrix<double, 9, 1> Vector;
+
+struct Payload
+{
+    //! Timestamp set just before adding to time series
+    double timestamp;
+
+    //! Some random payload data, to have a comparable message size to the
+    //! TriFinger robot observations.
+    Vector data1;
+    Vector data2;
+    Vector data3;
+
+    template <class Archive>
+    void serialize(Archive &archive)
+    {
+        archive(timestamp, data1, data2, data3);
+    }
+};
+
+typedef time_series::TimeSeriesInterface<Payload> TimeSeriesInterface;
+
 Eigen::Array<double, NUM_STEPS, 1> g_delays;
 
 /**
@@ -37,37 +114,42 @@ void *send(void *args)
     // wait a bit to ensure the other loop is waiting
     real_time_tools::Timer::sleep_sec(1);
 
-    time_series::TimeSeriesInterface<double> &ts =
-        *static_cast<time_series::TimeSeriesInterface<double> *>(args);
+    Payload payload;
+
+    TimeSeriesInterface &ts = *static_cast<TimeSeriesInterface *>(args);
     std::cout << "start transmitting" << std::endl;
     for (unsigned int i = 0; i < NUM_STEPS; i++)
     {
-        ts.append(real_time_tools::Timer::get_current_time_sec());
+        payload.data1 = Vector::Random();
+        payload.data2 = Vector::Random();
+        payload.data3 = Vector::Random();
+        payload.timestamp = real_time_tools::Timer::get_current_time_sec();
+        ts.append(payload);
         // TODO verify that the sleep here is long enough
         real_time_tools::Timer::sleep_sec(0.001);
     }
     // indicate end by sending a NaN
-    ts.append(std::numeric_limits<double>::quiet_NaN());
+    payload.timestamp = std::numeric_limits<double>::quiet_NaN();
+    ts.append(payload);
     return nullptr;
 }
 
 void *receive(void *args)
 {
-    time_series::TimeSeriesInterface<double> &ts =
-        *static_cast<time_series::TimeSeriesInterface<double> *>(args);
+    TimeSeriesInterface &ts = *static_cast<TimeSeriesInterface *>(args);
 
     size_t t = 0;
     std::cout << "ready for receiving" << std::endl;
     while (true)
     {
-        double send_time = ts[t];
+        Payload payload = ts[t];
         double now = real_time_tools::Timer::get_current_time_sec();
-        if (std::isnan(send_time))
+        if (std::isnan(payload.timestamp))
         {
             break;
         }
 
-        g_delays[t] = now - send_time;
+        g_delays[t] = now - payload.timestamp;
         t++;
     }
     return nullptr;
@@ -118,7 +200,7 @@ int main(int argc, char *argv[])
     {
         case SINGLE:
         {
-            time_series::TimeSeries<double> ts(100);
+            time_series::TimeSeries<Payload> ts(100);
 
             thread_receive.create_realtime_thread(&receive, &ts);
             thread_send.create_realtime_thread(&send, &ts);
@@ -130,7 +212,7 @@ int main(int argc, char *argv[])
 
         case MULTI_WRITE:
         {
-            time_series::MultiprocessTimeSeries<double> ts(
+            time_series::MultiprocessTimeSeries<Payload> ts(
                 "measure_delay", 100, false);
 
             thread_send.create_realtime_thread(&send, &ts);
@@ -142,7 +224,7 @@ int main(int argc, char *argv[])
         case MULTI_READ:
         {
             time_series::clear_memory("measure_delay");
-            time_series::MultiprocessTimeSeries<double> ts(
+            time_series::MultiprocessTimeSeries<Payload> ts(
                 "measure_delay", 100, true);
 
             thread_receive.create_realtime_thread(&receive, &ts);
