@@ -20,6 +20,9 @@
  * @copyright Copyright (c) 2020, Max Planck Gesellschaft.
  */
 
+#include <fstream>
+#include <iostream>
+
 #include <Eigen/Eigen>
 #include <limits>
 #include <real_time_tools/thread.hpp>
@@ -256,16 +259,16 @@ int main(int argc, char *argv[])
         }
         mean /= g_delays.size();
 
-        // analyse measured delays
-        //double std_dev = std::sqrt((g_delays - g_delays.mean()).square().sum() /
-        //                           (g_delays.size() - 1));
         std::cout << "Mean delay: " << mean << std::endl;
         std::cout << "Min. delay: " << min << std::endl;
         std::cout << "Max. delay: " << max << std::endl;
-        //std::cout << "std dev:    " << std_dev << std::endl;
 
-        // TODO: better dump g_delays to a file, then we can analyse and plot in
-        // Python.
+        // Dump g_delays to a file, then we can analyse and plot in Python.
+        std::ofstream output_file;
+        output_file.open("/tmp/time_series_delays");
+        std::ostream_iterator<double> stream_iter(output_file, "\n");
+        std::copy(g_delays.begin(), g_delays.end(), stream_iter);
+        output_file.close();
     }
 
     return 0;
