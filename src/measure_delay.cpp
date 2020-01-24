@@ -26,7 +26,7 @@
 #include <time_series/multiprocess_time_series.hpp>
 #include <time_series/time_series.hpp>
 
-const unsigned int NUM_STEPS = 10000;
+const unsigned int NUM_STEPS = 100000;
 
 
 namespace cereal
@@ -104,7 +104,8 @@ struct Payload
 
 typedef time_series::TimeSeriesInterface<Payload> TimeSeriesInterface;
 
-Eigen::Array<double, NUM_STEPS, 1> g_delays;
+std::array<double, NUM_STEPS> g_delays;
+//Eigen::Array<double, NUM_STEPS, 1> g_delays;
 
 /**
  * @brief Write time stamps to the time series
@@ -240,13 +241,31 @@ int main(int argc, char *argv[])
 
     if (mode == SINGLE || mode == MULTI_READ)
     {
+        double mean = 0;
+        double min = g_delays[0];
+        double max = g_delays[0];
+        for (size_t i = 0; i < g_delays.size(); i++)
+        {
+            mean += g_delays[i];
+            if (g_delays[i] < min) {
+                min = g_delays[i];
+            }
+            if (g_delays[i] > max) {
+                max = g_delays[i];
+            }
+        }
+        mean /= g_delays.size();
+
         // analyse measured delays
-        double std_dev = std::sqrt((g_delays - g_delays.mean()).square().sum() /
-                                   (g_delays.size() - 1));
-        std::cout << "Mean delay: " << g_delays.mean() << std::endl;
-        std::cout << "Min. delay: " << g_delays.minCoeff() << std::endl;
-        std::cout << "Max. delay: " << g_delays.maxCoeff() << std::endl;
-        std::cout << "std dev:    " << std_dev << std::endl;
+        //double std_dev = std::sqrt((g_delays - g_delays.mean()).square().sum() /
+        //                           (g_delays.size() - 1));
+        std::cout << "Mean delay: " << mean << std::endl;
+        std::cout << "Min. delay: " << min << std::endl;
+        std::cout << "Max. delay: " << max << std::endl;
+        //std::cout << "std dev:    " << std_dev << std::endl;
+
+        // TODO: better dump g_delays to a file, then we can analyse and plot in
+        // Python.
     }
 
     return 0;
