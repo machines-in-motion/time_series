@@ -30,6 +30,10 @@
 #include <time_series/multiprocess_time_series.hpp>
 #include <time_series/time_series.hpp>
 
+
+//#define ADD_EIGEN_PAYLOAD 1
+
+
 const unsigned int NUM_STEPS = 100000;
 
 
@@ -88,6 +92,7 @@ load(Archive& archive, Eigen::PlainObjectBase<Derived>& object)
 
 typedef Eigen::Matrix<double, 9, 1> Vector;
 
+#ifdef ADD_EIGEN_PAYLOAD
 struct Payload
 {
     //! Timestamp set just before adding to time series
@@ -105,6 +110,9 @@ struct Payload
         archive(timestamp, data1, data2, data3);
     }
 };
+#else
+typedef double Payload;
+#endif
 
 typedef time_series::TimeSeriesInterface<Payload> TimeSeriesInterface;
 
@@ -118,6 +126,12 @@ void *send(void *args)
 {
     real_time_tools::set_cpu_dma_latency(0);
 
+#ifdef ADD_EIGEN_PAYLOAD
+    std::cout << "Add Eigen vectors to payload" << std::endl;
+#else
+    std::cout << "Send raw timestamp" << std::endl;
+#endif
+
     // wait a bit to ensure the other loop is waiting
     real_time_tools::Timer::sleep_sec(1);
 
@@ -127,16 +141,25 @@ void *send(void *args)
     std::cout << "start transmitting" << std::endl;
     for (unsigned int i = 0; i < NUM_STEPS; i++)
     {
+#ifdef ADD_EIGEN_PAYLOAD
         payload.data1 = Vector::Random();
         payload.data2 = Vector::Random();
         payload.data3 = Vector::Random();
         payload.timestamp = real_time_tools::Timer::get_current_time_sec();
+#else
+        payload = real_time_tools::Timer::get_current_time_sec();
+#endif
         ts.append(payload);
         // TODO verify that the sleep here is long enough
         real_time_tools::Timer::sleep_sec(0.001);
     }
     // indicate end by sending a NaN
+#ifdef ADD_EIGEN_PAYLOAD
     payload.timestamp = std::numeric_limits<double>::quiet_NaN();
+#else
+    payload = std::numeric_limits<double>::quiet_NaN();
+#endif
+
     ts.append(payload);
     return nullptr;
 }
@@ -153,12 +176,19 @@ void *receive(void *args)
     {
         Payload payload = ts[t];
         double now = real_time_tools::Timer::get_current_time_sec();
-        if (std::isnan(payload.timestamp))
+
+#ifdef ADD_EIGEN_PAYLOAD
+        double send_time = payload.timestamp;
+#else
+        double send_time = payload;
+#endif
+
+        if (std::isnan(send_time))
         {
             break;
         }
 
-        g_delays[t] = now - payload.timestamp;
+        g_delays[t] = now - send_time;
         t++;
     }
     return nullptr;
