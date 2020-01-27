@@ -25,6 +25,7 @@
 
 #include <Eigen/Eigen>
 #include <limits>
+#include <real_time_tools/process_manager.hpp>
 #include <real_time_tools/thread.hpp>
 #include <time_series/multiprocess_time_series.hpp>
 #include <time_series/time_series.hpp>
@@ -115,6 +116,8 @@ std::array<double, NUM_STEPS> g_delays;
  */
 void *send(void *args)
 {
+    real_time_tools::set_cpu_dma_latency(0);
+
     // wait a bit to ensure the other loop is waiting
     real_time_tools::Timer::sleep_sec(1);
 
@@ -140,6 +143,8 @@ void *send(void *args)
 
 void *receive(void *args)
 {
+    real_time_tools::set_cpu_dma_latency(0);
+
     TimeSeriesInterface &ts = *static_cast<TimeSeriesInterface *>(args);
 
     size_t t = 0;
