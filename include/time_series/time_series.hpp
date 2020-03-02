@@ -36,8 +36,7 @@ class TimeSeries : public internal::TimeSeriesBase<internal::SingleProcess, T>
 {
 public:
     TimeSeries(size_t max_length, Index start_timeindex = 0)
-        : internal::TimeSeriesBase<internal::SingleProcess, T>(max_length,
-                                                               start_timeindex)
+        : internal::TimeSeriesBase<internal::SingleProcess, T>(start_timeindex)
     {
         this->mutex_ptr_ =
             std::make_shared<internal::Mutex<internal::SingleProcess> >();

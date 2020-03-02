@@ -25,7 +25,7 @@ template <typename P, typename T = int>
 class TimeSeriesBase : public TimeSeriesInterface<T>
 {
 public:
-    TimeSeriesBase(size_t max_length, Index start_timeindex = 0);
+    TimeSeriesBase(Index start_timeindex = 0);
     Index newest_timeindex();
     Index count_appended_elements();
     Index oldest_timeindex();

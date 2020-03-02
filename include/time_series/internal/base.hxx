@@ -3,7 +3,7 @@
 
 
 template <typename P, typename T>
-TimeSeriesBase<P, T>::TimeSeriesBase(size_t max_length  __attribute__((unused)), Index start_timeindex)
+TimeSeriesBase<P, T>::TimeSeriesBase(Index start_timeindex)
 {
     start_timeindex_ = start_timeindex;
     oldest_timeindex_ = start_timeindex_;
