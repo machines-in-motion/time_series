@@ -62,7 +62,7 @@ public:
                              bool leader = true,
                              Index start_timeindex = 0)
         : internal::TimeSeriesBase<internal::MultiProcesses, T>(
-              max_length, start_timeindex),
+              start_timeindex),
           indexes_(segment_id + internal::shm_indexes,
                    4,
                    leader,
