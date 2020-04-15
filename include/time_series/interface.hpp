@@ -96,8 +96,8 @@ public:
      */
     virtual void tag(const Index &timeindex) = 0;
 
-    /*! \brief tags the current time_series, can later be used to check
-     * whether new elements have been added
+    /*! \brief returns the index at which the time series has been tagged.
+     * Returns the newest timeindex if the time series has never been tagged. 
      */
     virtual Index tagged_timeindex() = 0;
 
