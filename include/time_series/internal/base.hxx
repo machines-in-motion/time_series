@@ -1,7 +1,6 @@
 // Copyright (c) 2019 Max Planck Gesellschaft
 // Vincent Berenz
 
-
 template <typename P, typename T>
 TimeSeriesBase<P, T>::TimeSeriesBase(Index start_timeindex)
 {
@@ -19,6 +18,14 @@ void TimeSeriesBase<P, T>::tag(const Index& timeindex)
     read_indexes();
     tagged_timeindex_ = timeindex;
     write_indexes();
+}
+
+template <typename P, typename T>
+Index TimeSeriesBase<P, T>::tagged_timeindex()
+{
+    Lock<P> lock(*this->mutex_ptr_);
+    read_indexes();
+    return tagged_timeindex_;
 }
 
 template <typename P, typename T>

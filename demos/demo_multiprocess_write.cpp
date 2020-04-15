@@ -15,8 +15,7 @@
 #define SEGMENT_ID "demo_time_series_multiprocess"
 #define TIMESERIES_SIZE 100
 
-typedef time_series::MultiprocessTimeSeries<shared_memory::Item<10>>
-    TIMESERIES;
+typedef time_series::MultiprocessTimeSeries<shared_memory::Item<10>> TIMESERIES;
 
 void run()
 {

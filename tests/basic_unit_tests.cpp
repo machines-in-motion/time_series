@@ -183,6 +183,8 @@ TEST(time_series_ut, tag)
     ts.append(20);
     changed = ts.has_changed_since_tag();
     ASSERT_TRUE(changed);
+    Index tagged_index = ts.tagged_timeindex();
+    ASSERT_EQ(tagged_index, index);
 }
 
 TEST(time_series_ut, timestamps)
