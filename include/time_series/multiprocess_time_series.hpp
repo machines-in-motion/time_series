@@ -52,39 +52,32 @@ public:
      * @param segment_id the id of the segment to point to
      * @param max_length max number of elements in the time series
      * @param leader if true, the shared memory segment will initialize
-     * the shared time series, and wiped the related shared memory on destruction. 
+     * the shared time series, and wiped the related shared memory on
+     * destruction.
      * Instantiating a  first MultiprocessTimeSeries with leader set to false
      * will result in undefined behavior. When the leader instance is destroyed,
      * other instances are pointing to the shared segment may crash or hang.
      */
     MultiprocessTimeSeries(std::string segment_id,
-                             size_t max_length,
-                             bool leader = true,
-                             Index start_timeindex = 0)
+                           size_t max_length,
+                           bool leader = true,
+                           Index start_timeindex = 0)
         : internal::TimeSeriesBase<internal::MultiProcesses, T>(
               start_timeindex),
-          indexes_(segment_id + internal::shm_indexes,
-                   4,
-                   leader,
-                   false)
+          indexes_(segment_id + internal::shm_indexes, 4, leader, false)
     {
         this->mutex_ptr_ =
             std::make_shared<internal::Mutex<internal::MultiProcesses> >(
                 segment_id + internal::shm_mutex, leader);
         this->condition_ptr_ = std::make_shared<
             internal::ConditionVariable<internal::MultiProcesses> >(
-            segment_id + internal::shm_condition_variable,
-            leader);
+            segment_id + internal::shm_condition_variable, leader);
         this->history_elements_ptr_ =
             std::make_shared<internal::Vector<internal::MultiProcesses, T> >(
-                max_length,
-                segment_id + internal::shm_elements,
-                leader);
+                max_length, segment_id + internal::shm_elements, leader);
         this->history_timestamps_ptr_ = std::make_shared<
             internal::Vector<internal::MultiProcesses, Timestamp> >(
-            max_length,
-            segment_id + internal::shm_timestamps,
-            leader);
+            max_length, segment_id + internal::shm_timestamps, leader);
         if (leader)
         {
             write_indexes();

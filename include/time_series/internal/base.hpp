@@ -40,6 +40,7 @@ public:
     size_t max_length();
     bool has_changed_since_tag();
     void tag(const Index &timeindex);
+    Index tagged_timeindex();
     void append(const T &element);
 
 protected:

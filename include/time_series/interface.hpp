@@ -36,7 +36,8 @@ public:
      */
     virtual Index newest_timeindex() = 0;
 
-    /*! \brief returns the number of element that has been contained in the queue, i.e.
+    /*! \brief returns the number of element that has been contained in the
+     * queue, i.e.
      *  the number of elements that have been added from the start.
      */
     virtual Index count_appended_elements() = 0;
@@ -94,6 +95,11 @@ public:
      * whether new elements have been added
      */
     virtual void tag(const Index &timeindex) = 0;
+
+    /*! \brief returns the index at which the time series has been tagged.
+     * Returns the newest timeindex if the time series has never been tagged. 
+     */
+    virtual Index tagged_timeindex() = 0;
 
     /*! \brief appends a new element to the time_series, e.g. we go from
      * \f$ X_{1:10} \f$ to \f$ X_{1:11} \f$ (where \f$ X_{11}=\f$ element).
