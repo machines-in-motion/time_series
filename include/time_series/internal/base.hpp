@@ -26,7 +26,7 @@ class TimeSeriesBase : public TimeSeriesInterface<T>
 {
 public:
     TimeSeriesBase(Index start_timeindex = 0);
-    Index newest_timeindex();
+    Index newest_timeindex(bool wait = true);
     Index count_appended_elements();
     Index oldest_timeindex();
     T newest_element();

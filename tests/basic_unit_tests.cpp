@@ -110,6 +110,13 @@ TEST(time_series_ut, basic_newest_element)
     thread2.join();
 }
 
+TEST(time_series_ut, newest_index_no_wait)
+{
+    TimeSeries<int> ts(100);
+    time_series::Index index = ts.newest_timeindex(false);
+    ASSERT_EQ(index, -1);
+}
+
 void *add_element_mp(void *)
 {
     bool clear_on_destruction = false;
