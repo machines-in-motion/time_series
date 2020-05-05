@@ -37,14 +37,24 @@ bool TimeSeriesBase<P, T>::has_changed_since_tag()
 }
 
 template <typename P, typename T>
-Index TimeSeriesBase<P, T>::newest_timeindex()
+Index TimeSeriesBase<P, T>::newest_timeindex(bool wait)
 {
     Lock<P> lock(*this->mutex_ptr_);
     read_indexes();
-    while (newest_timeindex_ < oldest_timeindex_)
+    if (wait)
     {
-        condition_ptr_->wait(lock);
-        read_indexes();
+        while (newest_timeindex_ < oldest_timeindex_)
+        {
+            condition_ptr_->wait(lock);
+            read_indexes();
+        }
+    }
+    else
+    {
+        if (newest_timeindex_ < oldest_timeindex_)
+        {
+            return -1;
+        }
     }
     return newest_timeindex_;
 }

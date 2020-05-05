@@ -32,9 +32,11 @@ template <typename T>
 class TimeSeriesInterface
 {
 public:
-    /*! \brief returns \f$ newest \f$. waits if the time_series is empty.
+    /*! \brief returns \f$ newest \f$ index. If argument wait is true, waits if
+     * the time_series is empty.
+     * If argument wait is false, the it returns -1 if the time series is empty.
      */
-    virtual Index newest_timeindex() = 0;
+    virtual Index newest_timeindex(bool wait = true) = 0;
 
     /*! \brief returns the number of element that has been contained in the
      * queue, i.e.
@@ -97,7 +99,7 @@ public:
     virtual void tag(const Index &timeindex) = 0;
 
     /*! \brief returns the index at which the time series has been tagged.
-     * Returns the newest timeindex if the time series has never been tagged. 
+     * Returns the newest timeindex if the time series has never been tagged.
      */
     virtual Index tagged_timeindex() = 0;
 
