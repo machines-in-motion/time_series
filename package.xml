@@ -12,13 +12,14 @@
   <maintainer email="mnaveau@tue.mpg.de">Maximilien Naveau</maintainer>
   <author email="manuel.wuthrich@gmail.com">Manuel Wuthrich</author>
   <maintainer email="manuel.wuthrich@gmail.com">Manuel Wuthrich</maintainer>
-  
+
   <buildtool_depend>catkin</buildtool_depend>
-  
+
   <depend> mpi_cmake_modules </depend>
   <depend> shared_memory </depend>
+  <depend> signal_handler </depend>
   <depend> real_time_tools </depend>
-  
+
   <export>
   </export>
 
