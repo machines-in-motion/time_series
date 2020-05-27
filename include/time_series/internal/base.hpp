@@ -5,6 +5,10 @@
 
 #include <chrono>
 #include <cmath>
+#include <thread>
+
+#include <signal_handler/signal_handler.hpp>
+#include <signal_handler/exceptions.hpp>
 
 #include "time_series/interface.hpp"
 #include "time_series/internal/specialized_classes.hpp"
@@ -69,8 +73,22 @@ protected:
     std::shared_ptr<ConditionVariable<P> > condition_ptr_;
     std::shared_ptr<Vector<P, T> > history_elements_ptr_;
     std::shared_ptr<Vector<P, Timestamp> > history_timestamps_ptr_;
+
+private:
+    std::thread signal_monitor_thread_;
+
+    /**
+     * @brief Monitors if SIGINT was received and releases the lock if yes.
+     *
+     * Loops until SIGINT was received.  When this happens, the condition_ptr_
+     * lock is released to prevent the lock from blocking application shut down.
+     */
+    void monitor_signal();
+
+    //! @brief Throw a ReceivedSignal exception if SIGINT was received.
+    static void throw_if_sigint_received();
 };
 
 #include "base.hxx"
-}
-}
+}  // namespace internal
+}  // namespace time_series

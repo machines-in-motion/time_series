@@ -2,6 +2,15 @@
 // Vincent Berenz
 
 template <typename P, typename T>
+void TimeSeriesBase<P, T>::throw_if_sigint_received()
+{
+    if (signal_handler::SignalHandler::has_received_sigint())
+    {
+        throw signal_handler::ReceivedSignal(SIGINT);
+    }
+}
+
+template <typename P, typename T>
 TimeSeriesBase<P, T>::TimeSeriesBase(Index start_timeindex) : empty_(true)
 {
     start_timeindex_ = start_timeindex;
@@ -9,6 +18,9 @@ TimeSeriesBase<P, T>::TimeSeriesBase(Index start_timeindex) : empty_(true)
     newest_timeindex_ = oldest_timeindex_ - 1;
 
     tagged_timeindex_ = newest_timeindex_;
+
+    signal_handler::SignalHandler::initialize();
+    signal_monitor_thread_ = std::thread(&TimeSeriesBase::monitor_signal, this);
 }
 
 template <typename P, typename T>
@@ -45,6 +57,8 @@ Index TimeSeriesBase<P, T>::newest_timeindex(bool wait)
     {
         while (newest_timeindex_ < oldest_timeindex_)
         {
+            throw_if_sigint_received();
+
             condition_ptr_->wait(lock);
             read_indexes();
         }
@@ -76,6 +90,8 @@ Index TimeSeriesBase<P, T>::oldest_timeindex(bool wait)
     {
         while (newest_timeindex_ < oldest_timeindex_)
         {
+            throw_if_sigint_received();
+
             condition_ptr_->wait(lock);
             read_indexes();
         }
@@ -87,6 +103,7 @@ Index TimeSeriesBase<P, T>::oldest_timeindex(bool wait)
             return EMPTY;
         }
     }
+
     return oldest_timeindex_;
 }
 
@@ -110,6 +127,8 @@ T TimeSeriesBase<P, T>::operator[](const Index& timeindex)
 
     while (newest_timeindex_ < timeindex)
     {
+        throw_if_sigint_received();
+
         condition_ptr_->wait(lock);
         read_indexes();
     }
@@ -134,6 +153,8 @@ Timestamp TimeSeriesBase<P, T>::timestamp_ms(const Index& timeindex)
 
     while (newest_timeindex_ < timeindex)
     {
+        throw_if_sigint_received();
+
         condition_ptr_->wait(lock);
         read_indexes();
     }
@@ -168,13 +189,15 @@ bool TimeSeriesBase<P, T>::wait_for_timeindex(const Index& timeindex,
         if (std::isfinite(max_duration_s))
         {
             bool notified = condition_ptr_->wait_for(lock, max_duration_s);
-            if (!notified)
+            if (!notified ||
+                signal_handler::SignalHandler::has_received_sigint())
             {
                 return false;
             }
         }
         else
         {
+            throw_if_sigint_received();
             condition_ptr_->wait(lock);
         }
         read_indexes();
@@ -239,4 +262,18 @@ bool TimeSeriesBase<P, T>::is_empty()
     }
     empty_ = false;
     return false;
+}
+
+template <typename P, typename T>
+void TimeSeriesBase<P, T>::monitor_signal()
+{
+    constexpr double SLEEP_DURATION_MS = 100;
+
+    while (!signal_handler::SignalHandler::has_received_sigint())
+    {
+        real_time_tools::Timer::sleep_ms(SLEEP_DURATION_MS);
+    }
+    // notify to release locks that could otherwise prevent the application from
+    // terminating
+    condition_ptr_->notify_all();
 }
