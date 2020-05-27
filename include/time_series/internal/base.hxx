@@ -88,10 +88,10 @@ Index TimeSeriesBase<P, T>::oldest_timeindex(bool wait)
     read_indexes();
     if (wait)
     {
-        throw_if_sigint_received();
-
         while (newest_timeindex_ < oldest_timeindex_)
         {
+            throw_if_sigint_received();
+
             condition_ptr_->wait(lock);
             read_indexes();
         }
