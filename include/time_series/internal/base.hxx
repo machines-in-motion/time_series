@@ -1,12 +1,14 @@
 // Copyright (c) 2019 Max Planck Gesellschaft
 // Vincent Berenz
 
-// throws an exception if SIGINT is received
-#define TS_THROW_IF_SIGINT                                    \
-    if (signal_handler::SignalHandler::has_received_sigint()) \
-    {                                                         \
-        throw signal_handler::ReceivedSignal(SIGINT);         \
+template <typename P, typename T>
+void TimeSeriesBase<P, T>::throw_if_sigint_received()
+{
+    if (signal_handler::SignalHandler::has_received_sigint())
+    {
+        throw signal_handler::ReceivedSignal(SIGINT);
     }
+}
 
 template <typename P, typename T>
 TimeSeriesBase<P, T>::TimeSeriesBase(Index start_timeindex) : empty_(true)
@@ -55,7 +57,7 @@ Index TimeSeriesBase<P, T>::newest_timeindex(bool wait)
     {
         while (newest_timeindex_ < oldest_timeindex_)
         {
-            TS_THROW_IF_SIGINT;
+            throw_if_sigint_received();
 
             condition_ptr_->wait(lock);
             read_indexes();
@@ -86,7 +88,7 @@ Index TimeSeriesBase<P, T>::oldest_timeindex(bool wait)
     read_indexes();
     if (wait)
     {
-        TS_THROW_IF_SIGINT;
+        throw_if_sigint_received();
 
         while (newest_timeindex_ < oldest_timeindex_)
         {
@@ -125,7 +127,7 @@ T TimeSeriesBase<P, T>::operator[](const Index& timeindex)
 
     while (newest_timeindex_ < timeindex)
     {
-        TS_THROW_IF_SIGINT;
+        throw_if_sigint_received();
 
         condition_ptr_->wait(lock);
         read_indexes();
@@ -151,7 +153,7 @@ Timestamp TimeSeriesBase<P, T>::timestamp_ms(const Index& timeindex)
 
     while (newest_timeindex_ < timeindex)
     {
-        TS_THROW_IF_SIGINT;
+        throw_if_sigint_received();
 
         condition_ptr_->wait(lock);
         read_indexes();
@@ -195,7 +197,7 @@ bool TimeSeriesBase<P, T>::wait_for_timeindex(const Index& timeindex,
         }
         else
         {
-            TS_THROW_IF_SIGINT;
+            throw_if_sigint_received();
             condition_ptr_->wait(lock);
         }
         read_indexes();

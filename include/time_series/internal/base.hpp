@@ -84,6 +84,9 @@ private:
      * lock is released to prevent the lock from blocking application shut down.
      */
     void monitor_signal();
+
+    //! @brief Throw a ReceivedSignal exception if SIGINT was received.
+    static void throw_if_sigint_received();
 };
 
 #include "base.hxx"
