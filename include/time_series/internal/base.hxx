@@ -267,9 +267,13 @@ bool TimeSeriesBase<P, T>::is_empty()
 template <typename P, typename T>
 void TimeSeriesBase<P, T>::monitor_signal()
 {
+    constexpr double SLEEP_DURATION_MS = 100;
+
     while (!signal_handler::SignalHandler::has_received_sigint())
     {
-        real_time_tools::Timer::sleep_ms(10);
+        real_time_tools::Timer::sleep_ms(SLEEP_DURATION_MS);
     }
+    // notify to release locks that could otherwise prevent the application from
+    // terminating
     condition_ptr_->notify_all();
 }
