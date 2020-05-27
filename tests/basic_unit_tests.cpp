@@ -207,3 +207,23 @@ TEST(time_series_ut, timestamps)
     Timestamp stamp_ms2 = ts.timestamp_ms(index);
     ASSERT_LT(stamp_ms2, stamp_ms + 1);
 }
+
+TEST(time_series_ut, empty)
+{
+    TimeSeries<int> ts(100);
+    ASSERT_TRUE(ts.is_empty());
+    ts.append(10);
+    ASSERT_FALSE(ts.is_empty());
+}
+
+TEST(time_series_ut, multi_processes_empty)
+{
+    clear_memory(SEGMENT_ID);
+    MultiprocessTimeSeries<int> ts1(SEGMENT_ID, 100, true);
+    MultiprocessTimeSeries<int> ts2(SEGMENT_ID, 100, false);
+    ASSERT_TRUE(ts1.is_empty());
+    ASSERT_TRUE(ts2.is_empty());
+    ts1.append(10);
+    ASSERT_FALSE(ts1.is_empty());
+    ASSERT_FALSE(ts2.is_empty());
+}

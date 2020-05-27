@@ -28,7 +28,7 @@ public:
     TimeSeriesBase(Index start_timeindex = 0);
     Index newest_timeindex(bool wait = true);
     Index count_appended_elements();
-    Index oldest_timeindex();
+    Index oldest_timeindex(bool wait = false);
     T newest_element();
     T operator[](const Index &timeindex);
     Timestamp timestamp_ms(const Index &timeindex);
@@ -42,6 +42,7 @@ public:
     void tag(const Index &timeindex);
     Index tagged_timeindex();
     void append(const T &element);
+    bool is_empty();
 
 protected:
     // in case of multiprocesses: will be used to keep
@@ -53,6 +54,12 @@ protected:
     Index oldest_timeindex_;
     Index newest_timeindex_;
     Index tagged_timeindex_;
+
+protected:
+    // non shared variable. initialized at true,
+    // and switched to false when an element is observed
+    // in the time series. Used only in the "is_empty" method.
+    bool empty_;
 
 protected:
     // see specialized_classes.hpp for
