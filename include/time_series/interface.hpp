@@ -15,6 +15,8 @@ namespace time_series
 typedef long int Index;
 typedef long double Timestamp;
 
+const Index EMPTY = -1;
+
 /**
  * \brief Interface for time series.
  * A time_series implements  \f$ X_{{oldest}:{newest}} \f$ which can
@@ -34,7 +36,8 @@ class TimeSeriesInterface
 public:
     /*! \brief returns \f$ newest \f$ index. If argument wait is true, waits if
      * the time_series is empty.
-     * If argument wait is false, the it returns -1 if the time series is empty.
+     * If argument wait is false and the time series is empty,
+     * returns time_series::EMPTY immediately.
      */
     virtual Index newest_timeindex(bool wait = true) = 0;
 
@@ -45,8 +48,10 @@ public:
     virtual Index count_appended_elements() = 0;
 
     /*! \brief returns \f$ oldest \f$. waits if the time_series is empty.
+     * If argument wait is false and the time series is empty,
+     * returns time_series::EMPTY immediately.
      */
-    virtual Index oldest_timeindex() = 0;
+    virtual Index oldest_timeindex(bool wait = true) = 0;
 
     /*! \brief returns \f$ X_{newest} \f$. waits if the time_series is empty.
      */
@@ -111,5 +116,10 @@ public:
      * to \f$ X_{2:11} \f$.
      */
     virtual void append(const T &element) = 0;
+
+    /*! \brief returns true if no element has ever been appended
+     *  to the time series.
+     */
+    virtual bool is_empty() = 0;
 };
 }

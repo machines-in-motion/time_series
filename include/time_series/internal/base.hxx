@@ -2,7 +2,7 @@
 // Vincent Berenz
 
 template <typename P, typename T>
-TimeSeriesBase<P, T>::TimeSeriesBase(Index start_timeindex)
+TimeSeriesBase<P, T>::TimeSeriesBase(Index start_timeindex) : empty_(true)
 {
     start_timeindex_ = start_timeindex;
     oldest_timeindex_ = start_timeindex_;
@@ -53,7 +53,7 @@ Index TimeSeriesBase<P, T>::newest_timeindex(bool wait)
     {
         if (newest_timeindex_ < oldest_timeindex_)
         {
-            return -1;
+            return EMPTY;
         }
     }
     return newest_timeindex_;
@@ -68,14 +68,24 @@ Index TimeSeriesBase<P, T>::count_appended_elements()
 }
 
 template <typename P, typename T>
-Index TimeSeriesBase<P, T>::oldest_timeindex()
+Index TimeSeriesBase<P, T>::oldest_timeindex(bool wait)
 {
     Lock<P> lock(*this->mutex_ptr_);
     read_indexes();
-    while (newest_timeindex_ < oldest_timeindex_)
+    if (wait)
     {
-        condition_ptr_->wait(lock);
-        read_indexes();
+        while (newest_timeindex_ < oldest_timeindex_)
+        {
+            condition_ptr_->wait(lock);
+            read_indexes();
+        }
+    }
+    else
+    {
+        if (newest_timeindex_ < oldest_timeindex_)
+        {
+            return EMPTY;
+        }
     }
     return oldest_timeindex_;
 }
@@ -212,4 +222,21 @@ size_t TimeSeriesBase<P, T>::max_length()
     Lock<P> lock(*this->mutex_ptr_);
     read_indexes();
     return this->history_elements_ptr_->size();
+}
+
+template <typename P, typename T>
+bool TimeSeriesBase<P, T>::is_empty()
+{
+    if (!empty_)
+    {
+        return false;
+    }
+    Lock<P> lock(*this->mutex_ptr_);
+    read_indexes();
+    if (newest_timeindex_ < oldest_timeindex_)
+    {
+        return true;
+    }
+    empty_ = false;
+    return false;
 }
