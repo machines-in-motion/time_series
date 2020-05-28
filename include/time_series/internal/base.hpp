@@ -30,6 +30,7 @@ class TimeSeriesBase : public TimeSeriesInterface<T>
 {
 public:
     TimeSeriesBase(Index start_timeindex = 0);
+    ~TimeSeriesBase();
     Index newest_timeindex(bool wait = true);
     Index count_appended_elements();
     Index oldest_timeindex(bool wait = false);
@@ -76,6 +77,8 @@ protected:
 
 private:
     std::thread signal_monitor_thread_;
+    //! Set to true in destructor to indicate thread that it should terminate.
+    std::atomic<bool> is_destructor_called_;
 
     /**
      * @brief Monitors if SIGINT was received and releases the lock if yes.

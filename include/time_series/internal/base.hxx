@@ -11,7 +11,8 @@ void TimeSeriesBase<P, T>::throw_if_sigint_received()
 }
 
 template <typename P, typename T>
-TimeSeriesBase<P, T>::TimeSeriesBase(Index start_timeindex) : empty_(true)
+TimeSeriesBase<P, T>::TimeSeriesBase(Index start_timeindex)
+    : empty_(true), is_destructor_called_(false)
 {
     start_timeindex_ = start_timeindex;
     oldest_timeindex_ = start_timeindex_;
@@ -21,6 +22,16 @@ TimeSeriesBase<P, T>::TimeSeriesBase(Index start_timeindex) : empty_(true)
 
     signal_handler::SignalHandler::initialize();
     signal_monitor_thread_ = std::thread(&TimeSeriesBase::monitor_signal, this);
+}
+
+template <typename P, typename T>
+TimeSeriesBase<P, T>::~TimeSeriesBase()
+{
+    is_destructor_called_ = true;
+    if (signal_monitor_thread_.joinable())
+    {
+        signal_monitor_thread_.join();
+    }
 }
 
 template <typename P, typename T>
@@ -269,7 +280,8 @@ void TimeSeriesBase<P, T>::monitor_signal()
 {
     constexpr double SLEEP_DURATION_MS = 100;
 
-    while (!signal_handler::SignalHandler::has_received_sigint())
+    while (!signal_handler::SignalHandler::has_received_sigint() and
+           !is_destructor_called_)
     {
         real_time_tools::Timer::sleep_ms(SLEEP_DURATION_MS);
     }
