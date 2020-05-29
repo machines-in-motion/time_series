@@ -47,7 +47,7 @@ include_directories(
 catkin_package(
   LIBRARIES time_series
   INCLUDE_DIRS include
-  CATKIN_DEPENDS mpi_cmake_modules shared_memory signal_handler
+  CATKIN_DEPENDS mpi_cmake_modules shared_memory signal_handler real_time_tools
 )
 
 ###########
