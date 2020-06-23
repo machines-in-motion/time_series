@@ -279,13 +279,20 @@ template <typename P, typename T>
 void TimeSeriesBase<P, T>::monitor_signal()
 {
     constexpr double SLEEP_DURATION_MS = 100;
+    std::shared_ptr<ConditionVariable<P> > local_condition_ptr = condition_ptr_;
 
-    while (!signal_handler::SignalHandler::has_received_sigint() and
+    while(!local_condition_ptr)
+    {
+        local_condition_ptr = condition_ptr_;
+    }
+
+    while (!signal_handler::SignalHandler::has_received_sigint() &&
            !is_destructor_called_)
     {
         real_time_tools::Timer::sleep_ms(SLEEP_DURATION_MS);
     }
     // notify to release locks that could otherwise prevent the application from
     // terminating
-    condition_ptr_->notify_all();
+    rt_printf("Execution interrupted, notify all waiting components.\n");
+    local_condition_ptr->notify_all();
 }

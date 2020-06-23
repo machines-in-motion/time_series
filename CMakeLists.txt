@@ -104,9 +104,10 @@ target_link_libraries(demo_multiprocess_read
 
 catkin_add_gtest(test_time_series
   tests/main.cpp
-  tests/basic_unit_tests.cpp
-  tests/parallel_unit_tests.cpp
-  )
+  tests/test_basic_api.cpp
+  tests/test_monitor_signal.cpp
+  tests/test_parallel_execution.cpp
+)
 if (TARGET test_time_series)
   target_link_libraries(test_time_series
     ${CMAKE_THREAD_LIBS_INIT}
