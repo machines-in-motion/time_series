@@ -281,7 +281,7 @@ void TimeSeriesBase<P, T>::monitor_signal()
     constexpr double SLEEP_DURATION_MS = 100;
     std::shared_ptr<ConditionVariable<P> > local_condition_ptr = condition_ptr_;
 
-    while(!local_condition_ptr)
+    while (!local_condition_ptr)
     {
         local_condition_ptr = condition_ptr_;
     }

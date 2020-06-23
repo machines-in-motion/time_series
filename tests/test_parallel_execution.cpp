@@ -42,7 +42,7 @@ public:
           output_indices_(NB_OUTPUT_DATA)
     {
         outputs_.resize(NB_OUTPUT_DATA);
-        for(unsigned int i = 0 ; i < outputs_.size() ; ++i)
+        for (unsigned int i = 0; i < outputs_.size(); ++i)
         {
             outputs_[i].resize(NB_INPUT_DATA, Type());
         }
@@ -196,7 +196,7 @@ bool test_parallel_time_series_history(bool slow, bool multiprocesses)
     // and cleanup shared memory at the end of the test.
     // (clear_on_destruction is true)
     TimeSeriesInterface<Type>* master_time_series = nullptr;
-    
+
     if (multiprocesses)
     {
         bool clear_on_destruction = true;

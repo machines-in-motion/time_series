@@ -87,7 +87,7 @@ class ConditionVariable<SingleProcess>
 public:
     ~ConditionVariable()
     {
-        condition.notify_all();   
+        condition.notify_all();
     }
     void notify_all()
     {
@@ -116,7 +116,7 @@ public:
     }
     ~ConditionVariable()
     {
-        condition.notify_all();   
+        condition.notify_all();
     }
     void notify_all()
     {
@@ -195,5 +195,5 @@ public:
 private:
     shared_memory::array<T> a_;
 };
-}
-}
+}  // namespace internal
+}  // namespace time_series

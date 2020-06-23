@@ -12,4 +12,4 @@ void clear_memory(std::string segment_id)
     shared_memory::ConditionVariable(
         segment_id + internal::shm_condition_variable, true);
 }
-}
+}  // namespace time_series

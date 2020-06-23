@@ -33,7 +33,7 @@ static const std::string shm_elements("_elements");
 static const std::string shm_timestamps("_timestamps");
 static const std::string shm_mutex("_mutex");
 static const std::string shm_condition_variable("_condition_variable");
-}
+}  // namespace internal
 
 /**
  * Multiprocess Time Series. Several instances hosted
@@ -112,4 +112,4 @@ protected:
  * in the newly created instance to hang.
  */
 void clear_memory(std::string segment_id);
-}
+}  // namespace time_series

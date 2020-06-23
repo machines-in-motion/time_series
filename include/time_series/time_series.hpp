@@ -57,4 +57,4 @@ protected:
     {
     }
 };
-}
+}  // namespace time_series
