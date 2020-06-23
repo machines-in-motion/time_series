@@ -45,7 +45,6 @@ TEST(parallel_time_series, monitor_signal_thread)
         construct_a_time_series(/* multiprocess = */ false);
 
     // Do a task that hangs.
-    rt_printf("Notify the sigint to fire.\n");
     signal_handler::SignalHandler::signal_handler(SIGINT);
 
     // Test the behavior.
