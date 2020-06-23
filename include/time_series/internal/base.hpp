@@ -8,8 +8,8 @@
 #include <cmath>
 #include <thread>
 
-#include <signal_handler/signal_handler.hpp>
 #include <signal_handler/exceptions.hpp>
+#include <signal_handler/signal_handler.hpp>
 
 #include "time_series/interface.hpp"
 #include "time_series/internal/specialized_classes.hpp"

@@ -122,4 +122,4 @@ public:
      */
     virtual bool is_empty() = 0;
 };
-}
+}  // namespace time_series

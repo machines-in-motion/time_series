@@ -85,6 +85,10 @@ template <>
 class ConditionVariable<SingleProcess>
 {
 public:
+    ~ConditionVariable()
+    {
+        condition.notify_all();
+    }
     void notify_all()
     {
         condition.notify_all();
@@ -109,6 +113,10 @@ public:
     ConditionVariable(std::string object_id, bool clear_on_destruction)
         : condition(object_id, clear_on_destruction)
     {
+    }
+    ~ConditionVariable()
+    {
+        condition.notify_all();
     }
     void notify_all()
     {
@@ -187,5 +195,5 @@ public:
 private:
     shared_memory::array<T> a_;
 };
-}
-}
+}  // namespace internal
+}  // namespace time_series

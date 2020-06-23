@@ -37,13 +37,14 @@ public:
         : length_(NB_INPUT_DATA),
           n_outputs_(NB_OUTPUT_DATA),
           time_series_(tsi),
-          inputs_(length_),
-          outputs_(n_outputs_),
-          output_indices_(n_outputs_)
+          inputs_(NB_INPUT_DATA),
+          outputs_(NB_OUTPUT_DATA),
+          output_indices_(NB_OUTPUT_DATA)
     {
-        for (int i = 0; i < n_outputs_; i++)
+        outputs_.resize(NB_OUTPUT_DATA);
+        for (unsigned int i = 0; i < outputs_.size(); ++i)
         {
-            outputs_[i] = std::vector<Type>(length_);
+            outputs_[i].resize(NB_INPUT_DATA, Type());
         }
     }
     ThreadData() : ThreadData(nullptr)
@@ -195,6 +196,7 @@ bool test_parallel_time_series_history(bool slow, bool multiprocesses)
     // and cleanup shared memory at the end of the test.
     // (clear_on_destruction is true)
     TimeSeriesInterface<Type>* master_time_series = nullptr;
+
     if (multiprocesses)
     {
         bool clear_on_destruction = true;

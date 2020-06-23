@@ -280,12 +280,22 @@ void TimeSeriesBase<P, T>::monitor_signal()
 {
     constexpr double SLEEP_DURATION_MS = 100;
 
-    while (!signal_handler::SignalHandler::has_received_sigint() and
+    // We need to copy the pointer here because otherwize the system segfaults.
+    // I am suspecting that the derefencing of the smart_pointer is not
+    // thread safe.
+    std::shared_ptr<ConditionVariable<P> > local_condition_ptr = condition_ptr_;
+    while (!local_condition_ptr)
+    {
+        local_condition_ptr = condition_ptr_;
+        real_time_tools::Timer::sleep_ms(SLEEP_DURATION_MS);
+    }
+
+    while (!signal_handler::SignalHandler::has_received_sigint() &&
            !is_destructor_called_)
     {
         real_time_tools::Timer::sleep_ms(SLEEP_DURATION_MS);
     }
-    // notify to release locks that could otherwise prevent the application from
-    // terminating
-    condition_ptr_->notify_all();
+    // Notify to release locks that could otherwise prevent the application from
+    // terminating.
+    local_condition_ptr->notify_all();
 }
