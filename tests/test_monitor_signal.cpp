@@ -78,4 +78,32 @@ TEST(parallel_time_series, monitor_signal_thread)
 
 TEST(parallel_time_series, monitor_signal_multiprocess)
 {
+    // Init task.
+    std::shared_ptr<time_series::TimeSeriesInterface<Type> > ts =
+        construct_a_time_series(/* multiprocess = */ true);
+
+    // Do a task that hangs.
+    signal_handler::SignalHandler::signal_handler(SIGINT);
+
+    // Test the behavior.
+    try
+    {
+        (*ts)[time_series::Index(TIME_SERIES_MAX_SIZE / 2)];
+        FAIL() << "Expected an instance of 'signal_handler::ReceivedSignal'.";
+    }
+    catch (signal_handler::ReceivedSignal const& err)
+    {
+        EXPECT_TRUE(std::string(err.what()).find("Received signal SIGINT") !=
+                    std::string::npos);
+    }
+    catch (...)
+    {
+        FAIL() << "Expected an instance of 'signal_handler::ReceivedSignal'.";
+    }
+
+    // No hang, success!
+    EXPECT_TRUE(true);
+
+    // Reset the signal handler
+    signal_handler::SignalHandler::reset();
 }
