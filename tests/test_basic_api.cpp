@@ -46,6 +46,21 @@ TEST(time_series_ut, basic_multi_processes)
     ASSERT_EQ(value, 30);
 }
 
+TEST(time_series_ut, multi_processes_get_max_length)
+{
+    clear_memory(SEGMENT_ID);
+    {
+        MultiprocessTimeSeries<int> ts1(SEGMENT_ID, 100, true);
+        size_t s = MultiprocessTimeSeries<int>::get_max_length(SEGMENT_ID);
+        ASSERT_EQ(s, 100);
+    }
+    {
+        MultiprocessTimeSeries<int> ts1(SEGMENT_ID, 200, true);
+        size_t s = MultiprocessTimeSeries<int>::get_max_length(SEGMENT_ID);
+        ASSERT_EQ(s, 200);
+    }
+}
+
 TEST(time_series_ut, serialized_multi_processes)
 {
     clear_memory(SEGMENT_ID);

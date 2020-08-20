@@ -82,6 +82,25 @@ public:
         {
             write_indexes();
         }
+        if (leader)
+        {
+            // sharing the max_length in the shared memory
+            // (follower can query size for proper construction)
+            shared_memory::set<size_t>(segment_id, "max_length", max_length);
+        }
+    }
+
+    /**
+     * returns the max length used by a leading MultiprocessTimeSeries
+     * of the corresponding segment_id
+     */
+    static size_t get_max_length(const std::string& segment_id)
+    {
+        size_t s;
+        {
+            shared_memory::get<size_t>(segment_id, "max_length", s);
+            return s;
+        }
     }
 
 protected:

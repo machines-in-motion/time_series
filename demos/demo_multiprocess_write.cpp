@@ -13,7 +13,6 @@
 #include "time_series/multiprocess_time_series.hpp"
 
 #define SEGMENT_ID "demo_time_series_multiprocess"
-#define TIMESERIES_SIZE 100
 
 typedef time_series::MultiprocessTimeSeries<shared_memory::Item<10>> TIMESERIES;
 
@@ -23,7 +22,9 @@ void run()
     // will do this
     bool clean_on_destruction = false;
 
-    TIMESERIES ts(SEGMENT_ID, TIMESERIES_SIZE, clean_on_destruction);
+    size_t max_length = TIMESERIES::get_max_length(SEGMENT_ID);
+
+    TIMESERIES ts(SEGMENT_ID, max_length, clean_on_destruction);
 
     for (int i = 0; i < 100; i++)
     {
