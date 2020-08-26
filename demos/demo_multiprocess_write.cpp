@@ -22,9 +22,7 @@ void run()
     // will do this
     bool clean_on_destruction = false;
 
-    size_t max_length = TIMESERIES::get_max_length(SEGMENT_ID);
-
-    TIMESERIES ts(SEGMENT_ID, max_length, clean_on_destruction);
+    TIMESERIES ts = TIMESERIES::create_follower(SEGMENT_ID);
 
     for (int i = 0; i < 100; i++)
     {

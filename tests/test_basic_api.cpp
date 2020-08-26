@@ -61,12 +61,47 @@ TEST(time_series_ut, multi_processes_get_max_length)
     }
 }
 
+TEST(time_series_ut, multi_processes_get_start_timeindex)
+{
+    clear_memory(SEGMENT_ID);
+    {
+        MultiprocessTimeSeries<int> ts1(SEGMENT_ID, 100, true, 25);
+        Index index =
+            MultiprocessTimeSeries<Index>::get_start_timeindex(SEGMENT_ID);
+        ASSERT_EQ(index, 25);
+    }
+    {
+        MultiprocessTimeSeries<int> ts1(SEGMENT_ID, 200, true, 32);
+        Index index =
+            MultiprocessTimeSeries<Index>::get_start_timeindex(SEGMENT_ID);
+        ASSERT_EQ(index, 32);
+    }
+}
+
+TEST(time_series_ut, factories)
+{
+    clear_memory(SEGMENT_ID);
+    typedef MultiprocessTimeSeries<double> Mt;
+    size_t max_length = 100;
+    Index start_timeindex = 25;
+    Mt leader = Mt::create_leader(SEGMENT_ID, max_length, start_timeindex);
+    Mt follower1 = Mt::create_follower(SEGMENT_ID);
+    Mt follower2 = Mt::create_follower(SEGMENT_ID);
+    ASSERT_EQ(follower1.max_length(), max_length);
+    ASSERT_EQ(follower2.max_length(), max_length);
+    leader.append(1.0);
+    ASSERT_EQ(follower1.newest_timeindex(), start_timeindex);
+    ASSERT_EQ(follower2.newest_timeindex(), start_timeindex);
+}
+
 TEST(time_series_ut, serialized_multi_processes)
 {
     clear_memory(SEGMENT_ID);
 
-    MultiprocessTimeSeries<Type> ts1(SEGMENT_ID, 100, true);
-    MultiprocessTimeSeries<Type> ts2(SEGMENT_ID, 100, false);
+    typedef MultiprocessTimeSeries<Type> Mpt;
+
+    Mpt ts1 = Mpt::create_leader(SEGMENT_ID, 100);
+    Mpt ts2 = Mpt::create_follower(SEGMENT_ID);
 
     Type type1;
     ts1.append(type1);
@@ -82,8 +117,11 @@ TEST(time_series_ut, full_round)
 {
     clear_memory(SEGMENT_ID);
 
-    MultiprocessTimeSeries<Type> ts1(SEGMENT_ID, 100, true);
-    MultiprocessTimeSeries<Type> ts2(SEGMENT_ID, 100, false);
+    typedef MultiprocessTimeSeries<Type> Mpt;
+
+    Mpt ts1 = Mpt::create_leader(SEGMENT_ID, 100);
+    Mpt ts2 = Mpt::create_follower(SEGMENT_ID);
+
     for (int i = 0; i < 101; i++)
     {
         Type type;
@@ -134,21 +172,23 @@ TEST(time_series_ut, newest_index_no_wait)
 
 void *add_element_mp(void *)
 {
-    bool clear_on_destruction = false;
-    MultiprocessTimeSeries<int> ts(SEGMENT_ID, 100, clear_on_destruction);
+    typedef MultiprocessTimeSeries<Type> Mpt;
+    Mpt ts1 = Mpt::create_follower(SEGMENT_ID);
     usleep(2000);
-    ts.append(20);
+    Type t;
+    t.set(5, 10, 20.0);
+    ts1.append(t);
 }
 
 TEST(time_series_ut, multiprocesses_newest_element)
 {
     clear_memory(SEGMENT_ID);
-    bool clear_on_destruction = true;
-    MultiprocessTimeSeries<int> ts(SEGMENT_ID, 100, clear_on_destruction);
+    typedef MultiprocessTimeSeries<Type> Mpt;
+    Mpt ts = Mpt::create_leader(SEGMENT_ID, 100);
     RealTimeThread thread;
     thread.create_realtime_thread(&add_element_mp);
-    int value = ts.newest_element();
-    ASSERT_EQ(value, 20);
+    Type t = ts.newest_element();
+    ASSERT_EQ(t.get(5, 10), 20.0);
     thread.join();
 }
 
@@ -166,7 +206,8 @@ TEST(time_series_ut, count_appended_elements)
 void *to_time_index(void *)
 {
     bool clear_on_destruction = false;
-    MultiprocessTimeSeries<int> ts(SEGMENT_ID, 100, clear_on_destruction);
+    typedef MultiprocessTimeSeries<int> Mpt;
+    Mpt ts = Mpt::create_follower(SEGMENT_ID);
     Index target_index = 10;
     Index index = 0;
     int c = 0;
@@ -183,8 +224,8 @@ void *to_time_index(void *)
 TEST(time_series_ut, wait_for_time_index)
 {
     clear_memory(SEGMENT_ID);
-    bool clear_on_destruction = true;
-    MultiprocessTimeSeries<int> ts(SEGMENT_ID, 100, clear_on_destruction);
+    typedef MultiprocessTimeSeries<int> Mpt;
+    Mpt ts = Mpt::create_leader(SEGMENT_ID, 100);
     RealTimeThread thread;
     thread.create_realtime_thread(&to_time_index);
     Index target_index = 10;
@@ -234,8 +275,9 @@ TEST(time_series_ut, empty)
 TEST(time_series_ut, multi_processes_empty)
 {
     clear_memory(SEGMENT_ID);
-    MultiprocessTimeSeries<int> ts1(SEGMENT_ID, 100, true);
-    MultiprocessTimeSeries<int> ts2(SEGMENT_ID, 100, false);
+    typedef MultiprocessTimeSeries<int> Mpt;
+    Mpt ts1 = Mpt::create_leader(SEGMENT_ID, 100);
+    Mpt ts2 = Mpt::create_follower(SEGMENT_ID);
     ASSERT_TRUE(ts1.is_empty());
     ASSERT_TRUE(ts2.is_empty());
     ts1.append(10);

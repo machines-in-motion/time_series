@@ -47,6 +47,8 @@ class MultiprocessTimeSeries
 {
 public:
     /**
+     * @deprecated uses the factory functions create_leader or
+     *             create_follower
      * @brief create a new instance pointing to the specified shared
      * memory segment
      * @param segment_id the id of the segment to point to
@@ -58,25 +60,27 @@ public:
      * will result in undefined behavior. When the leader instance is destroyed,
      * other instances are pointing to the shared segment may crash or hang.
      */
-    MultiprocessTimeSeries(std::string segment_id,
-                           size_t max_length,
-                           bool leader = true,
-                           Index start_timeindex = 0)
+    [[deprecated(
+        "use the factory functions create_leader or "
+        "create_follower")]] MultiprocessTimeSeries(std::string segment_id,
+                                                    size_t max_length,
+                                                    bool leader = true,
+                                                    Index start_timeindex = 0)
         : internal::TimeSeriesBase<internal::MultiProcesses, T>(
               start_timeindex),
           indexes_(segment_id + internal::shm_indexes, 4, leader, false)
     {
         this->mutex_ptr_ =
-            std::make_shared<internal::Mutex<internal::MultiProcesses> >(
+            std::make_shared<internal::Mutex<internal::MultiProcesses>>(
                 segment_id + internal::shm_mutex, leader);
         this->condition_ptr_ = std::make_shared<
-            internal::ConditionVariable<internal::MultiProcesses> >(
+            internal::ConditionVariable<internal::MultiProcesses>>(
             segment_id + internal::shm_condition_variable, leader);
         this->history_elements_ptr_ =
-            std::make_shared<internal::Vector<internal::MultiProcesses, T> >(
+            std::make_shared<internal::Vector<internal::MultiProcesses, T>>(
                 max_length, segment_id + internal::shm_elements, leader);
         this->history_timestamps_ptr_ = std::make_shared<
-            internal::Vector<internal::MultiProcesses, Timestamp> >(
+            internal::Vector<internal::MultiProcesses, Timestamp>>(
             max_length, segment_id + internal::shm_timestamps, leader);
         if (leader)
         {
@@ -87,7 +91,16 @@ public:
             // sharing the max_length in the shared memory
             // (follower can query size for proper construction)
             shared_memory::set<size_t>(segment_id, "max_length", max_length);
+            shared_memory::set<Index>(
+                segment_id, "start_timeindex", start_timeindex);
         }
+    }
+
+    MultiprocessTimeSeries(MultiprocessTimeSeries<T>&& other) noexcept
+        : internal::TimeSeriesBase<internal::MultiProcesses, T>(
+              std::forward<MultiprocessTimeSeries<T>>(other)),
+          indexes_(other.indexes_)
+    {
     }
 
     /**
@@ -97,10 +110,52 @@ public:
     static size_t get_max_length(const std::string& segment_id)
     {
         size_t s;
+        shared_memory::get<size_t>(segment_id, "max_length", s);
+        return s;
+    }
+
+    /**
+     * returns the start index used by a leading MultiprocessTimeSeries
+     * of the corresponding segment_id
+     */
+    static Index get_start_timeindex(const std::string& segment_id)
+    {
+        Index index;
+        shared_memory::get<Index>(segment_id, "start_timeindex", index);
+        return index;
+    }
+
+    static MultiprocessTimeSeries<T> create_leader(std::string segment_id,
+                                                   size_t max_length,
+                                                   Index start_timeindex = 0)
+    {
+        bool leader = true;
+        return MultiprocessTimeSeries<T>(
+            segment_id, max_length, leader, start_timeindex);
+    }
+
+    static MultiprocessTimeSeries<T> create_follower(std::string segment_id)
+    {
+        bool leader = false;
+        Index start_timeindex;
+        size_t max_length;
+        try
         {
-            shared_memory::get<size_t>(segment_id, "max_length", s);
-            return s;
+            start_timeindex =
+                MultiprocessTimeSeries::get_start_timeindex(segment_id);
+            max_length = MultiprocessTimeSeries::get_max_length(segment_id);
         }
+        catch (shared_memory::Unexpected_size_exception& e)
+        {
+            std::stringstream stream;
+            stream << "failing to create follower multiprocess_time_series "
+                      "with segment_id "
+                   << segment_id << ": "
+                   << "a corresponding leader should be started first";
+            throw std::runtime_error(stream.str());
+        }
+        return MultiprocessTimeSeries<T>(
+            segment_id, max_length, leader, start_timeindex);
     }
 
 protected:
