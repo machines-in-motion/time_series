@@ -125,6 +125,11 @@ public:
         return index;
     }
 
+    /**
+     * returns a leader instance of MultiprocessTimeSeries<T>
+     * @param segment_id the id of the segment to point to
+     * @param max_length max number of elements in the time series
+     */
     static MultiprocessTimeSeries<T> create_leader(std::string segment_id,
                                                    size_t max_length,
                                                    Index start_timeindex = 0)
@@ -134,6 +139,13 @@ public:
             segment_id, max_length, leader, start_timeindex);
     }
 
+    /**
+     * returns a follower instance of MultiprocessTimeSeries<T>.
+     * An follower instance should be created only if a leader
+     * instance has been created first. A std::runtime_error will
+     * be thrown otherwise.
+     * @param segment_id the id of the segment to point to
+     */
     static MultiprocessTimeSeries<T> create_follower(std::string segment_id)
     {
         bool leader = false;
