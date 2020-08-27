@@ -27,9 +27,7 @@ void run()
 
     // warning: any "demo_multiprocess_write" demo running
     // may hang or crash when this process exit
-    bool clean_on_destruction = true;
-
-    TimeSeries ts(SEGMENT_ID, TIMESERIES_SIZE, clean_on_destruction);
+    TimeSeries ts = TimeSeries::create_leader(SEGMENT_ID, TIMESERIES_SIZE);
 
     while (true)
     {

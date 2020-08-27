@@ -13,7 +13,6 @@
 #include "time_series/multiprocess_time_series.hpp"
 
 #define SEGMENT_ID "demo_time_series_multiprocess"
-#define TIMESERIES_SIZE 100
 
 typedef time_series::MultiprocessTimeSeries<shared_memory::Item<10>> TIMESERIES;
 
@@ -23,7 +22,7 @@ void run()
     // will do this
     bool clean_on_destruction = false;
 
-    TIMESERIES ts(SEGMENT_ID, TIMESERIES_SIZE, clean_on_destruction);
+    TIMESERIES ts = TIMESERIES::create_follower(SEGMENT_ID);
 
     for (int i = 0; i < 100; i++)
     {

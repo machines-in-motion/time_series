@@ -31,6 +31,7 @@ class TimeSeriesBase : public TimeSeriesInterface<T>
 {
 public:
     TimeSeriesBase(Index start_timeindex = 0);
+    TimeSeriesBase(TimeSeriesBase<P, T> &&other) noexcept;
     ~TimeSeriesBase();
     Index newest_timeindex(bool wait = true);
     Index count_appended_elements();

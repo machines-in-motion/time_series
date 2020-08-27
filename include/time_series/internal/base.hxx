@@ -25,6 +25,22 @@ TimeSeriesBase<P, T>::TimeSeriesBase(Index start_timeindex)
 }
 
 template <typename P, typename T>
+TimeSeriesBase<P, T>::TimeSeriesBase(TimeSeriesBase<P, T>&& other) noexcept
+    : start_timeindex_(other.start_timeindex_),
+      oldest_timeindex_(other.oldest_timeindex_),
+      newest_timeindex_(other.newest_timeindex_),
+      tagged_timeindex_(other.tagged_timeindex_),
+      empty_(other.empty_),
+      is_destructor_called_(false)
+{
+    mutex_ptr_ = std::move(other.mutex_ptr_);
+    condition_ptr_ = std::move(other.condition_ptr_);
+    history_elements_ptr_ = std::move(other.history_elements_ptr_);
+    history_timestamps_ptr_ = std::move(other.history_timestamps_ptr_);
+    signal_monitor_thread_ = std::move(other.signal_monitor_thread_);
+}
+
+template <typename P, typename T>
 TimeSeriesBase<P, T>::~TimeSeriesBase()
 {
     is_destructor_called_ = true;
