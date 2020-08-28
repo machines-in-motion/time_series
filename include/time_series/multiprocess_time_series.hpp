@@ -130,9 +130,10 @@ public:
      * @param segment_id the id of the segment to point to
      * @param max_length max number of elements in the time series
      */
-    static MultiprocessTimeSeries<T> create_leader(std::string segment_id,
-                                                   size_t max_length,
-                                                   Index start_timeindex = 0)
+    static MultiprocessTimeSeries<T> create_leader(
+        const std::string& segment_id,
+        size_t max_length,
+        Index start_timeindex = 0)
     {
         bool leader = true;
         return MultiprocessTimeSeries<T>(
@@ -141,7 +142,9 @@ public:
 
     //! @brief same as create_leader but returning a shared_ptr.
     static std::shared_ptr<MultiprocessTimeSeries<T>> create_leader_ptr(
-        std::string segment_id, size_t max_length, Index start_timeindex = 0)
+        const std::string& segment_id,
+        size_t max_length,
+        Index start_timeindex = 0)
     {
         bool leader = true;
         return std::make_shared<MultiprocessTimeSeries<T>>(
@@ -155,7 +158,8 @@ public:
      * be thrown otherwise.
      * @param segment_id the id of the segment to point to
      */
-    static MultiprocessTimeSeries<T> create_follower(std::string segment_id)
+    static MultiprocessTimeSeries<T> create_follower(
+        const std::string& segment_id)
     {
         bool leader = false;
         Index start_timeindex;
@@ -169,7 +173,7 @@ public:
 
     //! @brief same as create_follower but returning a shared_ptr.
     static std::shared_ptr<MultiprocessTimeSeries<T>> create_follower_ptr(
-        std::string segment_id)
+        const std::string& segment_id)
     {
         bool leader = false;
         Index start_timeindex;
