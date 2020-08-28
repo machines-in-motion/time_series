@@ -130,12 +130,24 @@ public:
      * @param segment_id the id of the segment to point to
      * @param max_length max number of elements in the time series
      */
-    static MultiprocessTimeSeries<T> create_leader(std::string segment_id,
-                                                   size_t max_length,
-                                                   Index start_timeindex = 0)
+    static MultiprocessTimeSeries<T> create_leader(
+        const std::string& segment_id,
+        size_t max_length,
+        Index start_timeindex = 0)
     {
         bool leader = true;
         return MultiprocessTimeSeries<T>(
+            segment_id, max_length, leader, start_timeindex);
+    }
+
+    //! @brief same as create_leader but returning a shared_ptr.
+    static std::shared_ptr<MultiprocessTimeSeries<T>> create_leader_ptr(
+        const std::string& segment_id,
+        size_t max_length,
+        Index start_timeindex = 0)
+    {
+        bool leader = true;
+        return std::make_shared<MultiprocessTimeSeries<T>>(
             segment_id, max_length, leader, start_timeindex);
     }
 
@@ -146,27 +158,30 @@ public:
      * be thrown otherwise.
      * @param segment_id the id of the segment to point to
      */
-    static MultiprocessTimeSeries<T> create_follower(std::string segment_id)
+    static MultiprocessTimeSeries<T> create_follower(
+        const std::string& segment_id)
     {
         bool leader = false;
         Index start_timeindex;
         size_t max_length;
-        try
-        {
-            start_timeindex =
-                MultiprocessTimeSeries::get_start_timeindex(segment_id);
-            max_length = MultiprocessTimeSeries::get_max_length(segment_id);
-        }
-        catch (shared_memory::Unexpected_size_exception& e)
-        {
-            std::stringstream stream;
-            stream << "failing to create follower multiprocess_time_series "
-                      "with segment_id "
-                   << segment_id << ": "
-                   << "a corresponding leader should be started first";
-            throw std::runtime_error(stream.str());
-        }
+        get_max_length_and_start_index_from_leader(
+            segment_id, &max_length, &start_timeindex);
+
         return MultiprocessTimeSeries<T>(
+            segment_id, max_length, leader, start_timeindex);
+    }
+
+    //! @brief same as create_follower but returning a shared_ptr.
+    static std::shared_ptr<MultiprocessTimeSeries<T>> create_follower_ptr(
+        const std::string& segment_id)
+    {
+        bool leader = false;
+        Index start_timeindex;
+        size_t max_length;
+        get_max_length_and_start_index_from_leader(
+            segment_id, &max_length, &start_timeindex);
+
+        return std::make_shared<MultiprocessTimeSeries<T>>(
             segment_id, max_length, leader, start_timeindex);
     }
 
@@ -185,6 +200,40 @@ protected:
         indexes_.set(1, this->oldest_timeindex_);
         indexes_.set(2, this->newest_timeindex_);
         indexes_.set(3, this->tagged_timeindex_);
+    }
+
+    /**
+     * @brief Load length and start index from leader.
+     *
+     * Assumes that a leader time series is already running and providing this
+     * information in the shared memory.
+     *
+     * @param[in]  segment_id The id of the segment to point to.
+     * @param[out] max_length The max. length of the time series.
+     * @param[out] start_timeindex
+     * @throws std::runtime_error If the data cannot be read from the specified
+     *     shared memory segment.
+     */
+    static void get_max_length_and_start_index_from_leader(
+        const std::string& segment_id,
+        size_t* max_length,
+        Index* start_timeindex)
+    {
+        try
+        {
+            *start_timeindex =
+                MultiprocessTimeSeries::get_start_timeindex(segment_id);
+            *max_length = MultiprocessTimeSeries::get_max_length(segment_id);
+        }
+        catch (shared_memory::Unexpected_size_exception& e)
+        {
+            std::stringstream stream;
+            stream << "failing to create follower multiprocess_time_series "
+                      "with segment_id "
+                   << segment_id << ": "
+                   << "a corresponding leader should be started first";
+            throw std::runtime_error(stream.str());
+        }
     }
 
     shared_memory::array<Index> indexes_;
