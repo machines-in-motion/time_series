@@ -41,7 +41,7 @@ public:
         std::cout << "\n";
     }
 
-    double set(int i, int j, double value)
+    void set(int i, int j, double value)
     {
         data_[i][j] = value;
     }

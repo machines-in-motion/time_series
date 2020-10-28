@@ -52,12 +52,13 @@ TEST(time_series_ut, multi_processes_get_max_length)
     {
         MultiprocessTimeSeries<int> ts1(SEGMENT_ID, 100, true);
         size_t s = MultiprocessTimeSeries<int>::get_max_length(SEGMENT_ID);
-        ASSERT_EQ(s, 100);
+	size_t target = 100;
+        ASSERT_EQ(s, target);
     }
     {
         MultiprocessTimeSeries<int> ts1(SEGMENT_ID, 200, true);
         size_t s = MultiprocessTimeSeries<int>::get_max_length(SEGMENT_ID);
-        ASSERT_EQ(s, 200);
+        ASSERT_EQ(s, (size_t)200);
     }
 }
 
@@ -142,6 +143,7 @@ void *add_element(void *args)
     TimeSeries<int> &ts = *static_cast<TimeSeries<int> *>(args);
     usleep(1000);
     ts.append(20);
+    return nullptr;
 }
 
 TEST(time_series_ut, basic_newest_element)
@@ -178,6 +180,7 @@ void *add_element_mp(void *)
     Type t;
     t.set(5, 10, 20.0);
     ts1.append(t);
+    return nullptr;
 }
 
 TEST(time_series_ut, multiprocesses_newest_element)
@@ -205,11 +208,9 @@ TEST(time_series_ut, count_appended_elements)
 
 void *to_time_index(void *)
 {
-    bool clear_on_destruction = false;
     typedef MultiprocessTimeSeries<int> Mpt;
     Mpt ts = Mpt::create_follower(SEGMENT_ID);
     Index target_index = 10;
-    Index index = 0;
     int c = 0;
     ts.append(c);
     c++;
@@ -219,6 +220,7 @@ void *to_time_index(void *)
         c++;
         usleep(200);
     }
+    return nullptr;
 }
 
 TEST(time_series_ut, wait_for_time_index)
