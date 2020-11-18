@@ -52,7 +52,7 @@ TEST(time_series_ut, multi_processes_get_max_length)
     {
         MultiprocessTimeSeries<int> ts1(SEGMENT_ID, 100, true);
         size_t s = MultiprocessTimeSeries<int>::get_max_length(SEGMENT_ID);
-	size_t target = 100;
+        size_t target = 100;
         ASSERT_EQ(s, target);
     }
     {
