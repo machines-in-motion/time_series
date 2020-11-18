@@ -16,14 +16,16 @@ namespace time_series
    * which is of typedef time_series::MultiprocessTimeSeries<T>
    */
   template<typename T>
-  void create_multiprocesses_python_bindings(pybind11::module &m);
+  void create_multiprocesses_python_bindings(pybind11::module &m,
+					     const std::string& classname);
 
   /**
    * adds to the python module m a class called TimeSeries
    * which is of typedef time_series::TimeSeries<T>
    */
   template<typename T>
-  void create_python_bindings(pybind11::module &m);
+  void create_python_bindings(pybind11::module &m,
+			      const std::string& classname);
 
   
   #include "pybind11_helper.hxx"
