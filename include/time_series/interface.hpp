@@ -34,6 +34,10 @@ template <typename T>
 class TimeSeriesInterface
 {
 public:
+    virtual ~TimeSeriesInterface()
+    {
+    }
+
     /*! \brief returns \f$ newest \f$ index. If argument wait is true, waits if
      * the time_series is empty.
      * If argument wait is false and the time series is empty,

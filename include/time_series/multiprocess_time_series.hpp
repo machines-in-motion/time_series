@@ -60,12 +60,10 @@ public:
      * will result in undefined behavior. When the leader instance is destroyed,
      * other instances are pointing to the shared segment may crash or hang.
      */
-    [[deprecated(
-        "use the factory functions create_leader or "
-        "create_follower")]] MultiprocessTimeSeries(std::string segment_id,
-                                                    size_t max_length,
-                                                    bool leader = true,
-                                                    Index start_timeindex = 0)
+    MultiprocessTimeSeries(std::string segment_id,
+                           size_t max_length,
+                           bool leader = true,
+                           Index start_timeindex = 0)
         : internal::TimeSeriesBase<internal::MultiProcesses, T>(
               start_timeindex),
           indexes_(segment_id + internal::shm_indexes, 4, leader, false)

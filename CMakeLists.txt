@@ -1,130 +1,116 @@
-cmake_minimum_required(VERSION 2.8.3)
-
+cmake_minimum_required(VERSION 3.10.2)
 project(time_series)
 
-# required to use std::shared_ptr in code and to link the python bindings
-if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -lrt -Wl,--no-as-needed")
-else()
-  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Wextra")
+# Using C++17
+if(NOT CMAKE_C_STANDARD)
+  set(CMAKE_C_STANDARD 99)
+endif()
+if(NOT CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 17)
 endif()
 
-###########
-# imports #
-###########
+# stop build on first error
+string(APPEND CMAKE_CXX_FLAGS " -Wfatal-errors")
 
-find_package(catkin REQUIRED COMPONENTS
-  mpi_cmake_modules
-  shared_memory
-  signal_handler
-  real_time_tools
-)
-search_for_eigen()
-search_for_boost()
-search_for_pthread()
+#
+# Dependencies
+#
 
-# This macro sets the C++ preprocessor flags "XENOMAI", "RT_PREEMPT", or
-# "UBUNTU" according to the current operating system.
-DEFINE_OS()
+# depend on ament macros
+find_package(ament_cmake REQUIRED)
 
+find_package(mpi_cmake_modules REQUIRED)
+find_package(shared_memory REQUIRED)
+find_package(real_time_tools REQUIRED)
+find_package(signal_handler REQUIRED)
+find_package(Eigen3 REQUIRED)
+find_package(Boost REQUIRED COMPONENTS filesystem system thread)
+find_package(Threads REQUIRED)
 
-############
-# includes #
-############
+ament_export_dependencies(shared_memory real_time_tools signal_handler Eigen3
+                          Boost Threads)
 
-include_directories(
-    include
-    ${Boost_INCLUDE_DIRS}
-    ${Eigen_INCLUDE_DIRS}
-    ${catkin_INCLUDE_DIRS}
-)
+set(all_targets)
+set(all_target_exports)
 
-##################
-# catkin exports #
-##################
+#
+# library
+#
+add_library(${PROJECT_NAME} SHARED src/multiprocess_time_series.cpp)
+# Add the include dependencies
+target_include_directories(
+  ${PROJECT_NAME} PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+                         $<INSTALL_INTERFACE:include>)
+# Link the dependencies
+ament_target_dependencies(${PROJECT_NAME} Boost)
+ament_target_dependencies(${PROJECT_NAME} Threads)
+target_link_libraries(${PROJECT_NAME} shared_memory::shared_memory)
+target_link_libraries(${PROJECT_NAME} real_time_tools::real_time_tools)
+target_link_libraries(${PROJECT_NAME} signal_handler::signal_handler)
+target_link_libraries(${PROJECT_NAME} Eigen3::Eigen)
+# Export the target.
+ament_export_interfaces(export_${PROJECT_NAME} HAS_LIBRARY_TARGET)
+# For the installation
+list(APPEND all_targets ${PROJECT_NAME})
+list(APPEND all_target_exports export_${PROJECT_NAME})
 
-
-catkin_package(
-  LIBRARIES time_series
-  INCLUDE_DIRS include
-  CATKIN_DEPENDS mpi_cmake_modules shared_memory signal_handler real_time_tools
-)
-
-###########
-# library #
-###########
-
-add_library(time_series
-  src/multiprocess_time_series.cpp)
-target_link_libraries(time_series
-  ${CMAKE_THREAD_LIBS_INIT}
-  ${Boost_LIBRARIES}
-  ${catkin_LIBRARIES}
-  )
-if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-  target_link_libraries(time_series
-    -lrt
-    -pthread
-    )
-endif(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-
-#########
+#
 # demos #
-#########
+#
+add_executable(demo_time_series demos/demo_time_series.cpp)
+target_link_libraries(demo_time_series ${PROJECT_NAME})
+list(APPEND all_targets demo_time_series)
 
-add_executable(demo_time_series
-  demos/demo_time_series.cpp)
-target_link_libraries(demo_time_series
-  ${CMAKE_THREAD_LIBS_INIT}
-  ${Boost_LIBRARIES}
-  ${catkin_LIBRARIES}
-  time_series
-)
-add_executable(demo_multiprocess_write
-  demos/demo_multiprocess_write.cpp)
-target_link_libraries(demo_multiprocess_write
-  ${CMAKE_THREAD_LIBS_INIT}
-  ${Boost_LIBRARIES}
-  ${catkin_LIBRARIES}
-  time_series
-)
+add_executable(demo_multiprocess_write demos/demo_multiprocess_write.cpp)
+target_link_libraries(demo_multiprocess_write ${PROJECT_NAME})
+list(APPEND all_targets demo_multiprocess_write)
 
-add_executable(demo_multiprocess_read
-  demos/demo_multiprocess_read.cpp)
-target_link_libraries(demo_multiprocess_read
-  ${CMAKE_THREAD_LIBS_INIT}
-  ${Boost_LIBRARIES}
-  ${catkin_LIBRARIES}
-  time_series
-)
+add_executable(demo_multiprocess_read demos/demo_multiprocess_read.cpp)
+target_link_libraries(demo_multiprocess_read ${PROJECT_NAME})
+list(APPEND all_targets demo_multiprocess_read)
 
-##############
-# unit tests #
-##############
+#
+# Add unit tests.
+#
+if(BUILD_TESTING)
+  find_package(ament_cmake_gtest)
 
-catkin_add_gtest(test_time_series
-  tests/main.cpp
-  tests/test_basic_api.cpp
-  tests/test_monitor_signal.cpp
-  tests/test_parallel_execution.cpp
-)
-if (TARGET test_time_series)
-  target_link_libraries(test_time_series
-    ${CMAKE_THREAD_LIBS_INIT}
-    ${catkin_LIBRARIES}
-    ${Boost_LIBRARIES}
-    time_series
-    )
+  # Set a general config folder path for all tests
+  set(TEST_CONFIG_PATH ${PROJECT_SOURCE_DIR}/tests/config/)
+
+  ament_add_gtest(
+    test_time_series tests/main.cpp tests/test_basic_api.cpp
+    tests/test_monitor_signal.cpp tests/test_parallel_execution.cpp)
+
+  # Link the dependencies to it.
+  target_link_libraries(test_time_series ${PROJECT_NAME})
+  target_include_directories(
+    test_time_series
+    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+           $<INSTALL_INTERFACE:include> SYSTEM
+    PUBLIC ${PYTHON_INCLUDE_DIRS} ${EIGEN3_INCLUDE_DIR})
 endif()
 
-##########################
-# building documentation #
-##########################
+#
+# Install the package
+#
+install(DIRECTORY include/ DESTINATION include)
 
-build_doxygen_documentation()
+install(
+  TARGETS ${all_targets}
+  EXPORT ${all_target_exports}
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+  RUNTIME DESTINATION lib/${PROJECT_NAME} # to be seen by ros2 run
+  INCLUDES
+  DESTINATION include)
 
-####################################
-# formatting according to standard #
-####################################
+#
+# Building documentation.
+#
+add_documentation()
 
-format_code()
+#
+# Export as an ament_package
+#
+ament_package()

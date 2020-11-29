@@ -54,14 +54,14 @@ public:
     size_t length_;
     /** @brief is the number of output data*/
     size_t n_outputs_;
+    /** @brief The thread safe time series data buffer*/
+    TimeSeriesInterface<Type>* time_series_;
     /** @brief Is the input data buffer*/
     std::vector<Type> inputs_;
     /** @brief Is the mutex that provide safe access to the ouputs*/
     real_time_tools::RealTimeMutex outputs_mutex_;
     /** @brief The output data buffer*/
     std::vector<std::vector<Type>> outputs_;
-    /** @brief The thread safe time series data buffer*/
-    TimeSeriesInterface<Type>* time_series_;
     /** @brief is the indices of the buffer to be used in each threads*/
     std::vector<size_t> output_indices_;
 };
@@ -147,8 +147,6 @@ void* input_to_time_series(void* void_ptr)
 void* time_series_to_output(void* void_ptr)
 {
     OutputThreadData& thread_data = *static_cast<OutputThreadData*>(void_ptr);
-
-    int id = thread_data.id;
 
     // if single process, the time_series is a member of OutputThreadData.data,
     // and shared accross threads.

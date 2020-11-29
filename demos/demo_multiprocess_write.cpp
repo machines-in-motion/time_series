@@ -18,10 +18,6 @@ typedef time_series::MultiprocessTimeSeries<shared_memory::Item<10>> TIMESERIES;
 
 void run()
 {
-    // because the instance created by demo_process_read
-    // will do this
-    bool clean_on_destruction = false;
-
     TIMESERIES ts = TIMESERIES::create_follower(SEGMENT_ID);
 
     for (int i = 0; i < 100; i++)
