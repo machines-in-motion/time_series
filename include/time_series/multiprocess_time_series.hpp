@@ -183,6 +183,34 @@ public:
             segment_id, max_length, leader, start_timeindex);
     }
 
+    /**
+     * similar to the random access operator, but does not deserialized the
+     * accessed element. If the element is of a fundamental type (or an array of),
+     * an std::logic_error is thrown.
+     */
+    std::string get_raw(const Index &timeindex)
+    {
+      internal::Lock<internal::MultiProcesses> lock(*this->mutex_ptr_);
+      read_indexes();
+      if (timeindex < this->oldest_timeindex_)
+	{
+	  throw std::invalid_argument(
+				      "you tried to access time_series element which is too old.");
+	}
+      
+      while (this->newest_timeindex_ < timeindex)
+	{
+	  this->throw_if_sigint_received();
+	  
+	  this->condition_ptr_->wait(lock);
+	  read_indexes();
+	}
+      
+      return this->history_elements_ptr_->get_serialized(
+				       timeindex % this->history_elements_ptr_->size());
+      
+    }
+  
 protected:
     void read_indexes()
     {
