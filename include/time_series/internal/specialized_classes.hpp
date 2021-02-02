@@ -160,7 +160,8 @@ public:
     }
     std::string get_serialized(int index)
     {
-      throw std::logic_error("function not implemented for non multiprocess time series");      
+        throw std::logic_error(
+            "function not implemented for non multiprocess time series");
     }
     void set(int index, const T &t)
     {
@@ -193,7 +194,7 @@ public:
     }
     std::string get_serialized(int index)
     {
-      return a_.get_serialized(index);
+        return a_.get_serialized(index);
     }
     void set(int index, const T &t)
     {

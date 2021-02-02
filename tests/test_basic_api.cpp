@@ -126,10 +126,9 @@ TEST(time_series_ut, get_raw)
     std::string serialized = ts2.get_raw(index2);
     shared_memory::Serializer<Type> serializer;
     Type type2;
-    serializer.deserialize(serialized,type2);
-    ASSERT_EQ(type1,type2);
+    serializer.deserialize(serialized, type2);
+    ASSERT_EQ(type1, type2);
 }
-
 
 TEST(time_series_ut, full_round)
 {
