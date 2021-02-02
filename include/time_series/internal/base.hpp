@@ -90,6 +90,7 @@ private:
      */
     void monitor_signal();
 
+protected:
     //! @brief Throw a ReceivedSignal exception if SIGINT was received.
     static void throw_if_sigint_received();
 };

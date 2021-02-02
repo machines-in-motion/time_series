@@ -114,6 +114,22 @@ TEST(time_series_ut, serialized_multi_processes)
     ASSERT_EQ(type1, type2);
 }
 
+TEST(time_series_ut, get_raw)
+{
+    clear_memory(SEGMENT_ID);
+    typedef MultiprocessTimeSeries<Type> Mpt;
+    Mpt ts1 = Mpt::create_leader(SEGMENT_ID, 100);
+    Mpt ts2 = Mpt::create_follower(SEGMENT_ID);
+    Type type1;
+    ts1.append(type1);
+    Index index2 = ts2.newest_timeindex();
+    std::string serialized = ts2.get_raw(index2);
+    shared_memory::Serializer<Type> serializer;
+    Type type2;
+    serializer.deserialize(serialized, type2);
+    ASSERT_EQ(type1, type2);
+}
+
 TEST(time_series_ut, full_round)
 {
     clear_memory(SEGMENT_ID);
