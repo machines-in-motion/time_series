@@ -33,40 +33,40 @@ public:
     TimeSeriesBase(Index start_timeindex = 0);
     TimeSeriesBase(TimeSeriesBase<P, T> &&other) noexcept;
     ~TimeSeriesBase();
-    Index newest_timeindex(bool wait = true);
-    Index count_appended_elements();
-    Index oldest_timeindex(bool wait = false);
-    T newest_element();
-    T operator[](const Index &timeindex);
-    Timestamp timestamp_ms(const Index &timeindex);
-    Timestamp timestamp_s(const Index &timeindex);
+    Index newest_timeindex(bool wait = true) const;
+    Index count_appended_elements() const;
+    Index oldest_timeindex(bool wait = false) const;
+    T newest_element() const;
+    T operator[](const Index &timeindex) const;
+    Timestamp timestamp_ms(const Index &timeindex) const;
+    Timestamp timestamp_s(const Index &timeindex) const;
     bool wait_for_timeindex(const Index &timeindex,
                             const double &max_duration_s =
-                                std::numeric_limits<double>::quiet_NaN());
-    size_t length();
-    size_t max_length();
-    bool has_changed_since_tag();
+                                std::numeric_limits<double>::quiet_NaN()) const;
+    size_t length() const;
+    size_t max_length() const;
+    bool has_changed_since_tag() const;
     void tag(const Index &timeindex);
-    Index tagged_timeindex();
+    Index tagged_timeindex() const;
     void append(const T &element);
-    bool is_empty();
+    bool is_empty() const;
 
 protected:
     // in case of multiprocesses: will be used to keep
     // indexes values aligned for all instances
-    virtual void read_indexes() = 0;
+    virtual void read_indexes() const = 0;
     virtual void write_indexes() = 0;
 
-    Index start_timeindex_;
-    Index oldest_timeindex_;
-    Index newest_timeindex_;
-    Index tagged_timeindex_;
+    mutable Index start_timeindex_;
+    mutable Index oldest_timeindex_;
+    mutable Index newest_timeindex_;
+    mutable Index tagged_timeindex_;
 
 protected:
     // non shared variable. initialized at true,
     // and switched to false when an element is observed
     // in the time series. Used only in the "is_empty" method.
-    bool empty_;
+    mutable bool empty_;
 
 protected:
     // see specialized_classes.hpp for

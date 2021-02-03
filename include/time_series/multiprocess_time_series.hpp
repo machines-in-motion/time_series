@@ -211,7 +211,7 @@ public:
     }
 
 protected:
-    void read_indexes()
+    void read_indexes() const
     {
         indexes_.get(0, this->start_timeindex_);
         indexes_.get(1, this->oldest_timeindex_);
@@ -261,7 +261,7 @@ protected:
         }
     }
 
-    shared_memory::array<Index> indexes_;
+    mutable shared_memory::array<Index> indexes_;
 };
 
 /**
