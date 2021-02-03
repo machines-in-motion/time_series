@@ -50,7 +50,7 @@ public:
     }
 
 protected:
-    void read_indexes()
+    void read_indexes() const
     {
     }
     void write_indexes()

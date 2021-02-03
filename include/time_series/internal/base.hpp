@@ -54,13 +54,13 @@ public:
 protected:
     // in case of multiprocesses: will be used to keep
     // indexes values aligned for all instances
-    virtual void read_indexes() = 0;
+    virtual void read_indexes() const = 0;
     virtual void write_indexes() = 0;
 
-    Index start_timeindex_;
-    Index oldest_timeindex_;
-    Index newest_timeindex_;
-    Index tagged_timeindex_;
+    mutable Index start_timeindex_;
+    mutable Index oldest_timeindex_;
+    mutable Index newest_timeindex_;
+    mutable Index tagged_timeindex_;
 
 protected:
     // non shared variable. initialized at true,
