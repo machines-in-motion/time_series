@@ -60,7 +60,7 @@ void TimeSeriesBase<P, T>::tag(const Index& timeindex)
 }
 
 template <typename P, typename T>
-Index TimeSeriesBase<P, T>::tagged_timeindex()
+Index TimeSeriesBase<P, T>::tagged_timeindex() const
 {
     Lock<P> lock(*this->mutex_ptr_);
     read_indexes();
@@ -68,7 +68,7 @@ Index TimeSeriesBase<P, T>::tagged_timeindex()
 }
 
 template <typename P, typename T>
-bool TimeSeriesBase<P, T>::has_changed_since_tag()
+bool TimeSeriesBase<P, T>::has_changed_since_tag() const
 {
     Lock<P> lock(*this->mutex_ptr_);
     read_indexes();
@@ -76,7 +76,7 @@ bool TimeSeriesBase<P, T>::has_changed_since_tag()
 }
 
 template <typename P, typename T>
-Index TimeSeriesBase<P, T>::newest_timeindex(bool wait)
+Index TimeSeriesBase<P, T>::newest_timeindex(bool wait) const
 {
     Lock<P> lock(*this->mutex_ptr_);
     read_indexes();
@@ -101,7 +101,7 @@ Index TimeSeriesBase<P, T>::newest_timeindex(bool wait)
 }
 
 template <typename P, typename T>
-Index TimeSeriesBase<P, T>::count_appended_elements()
+Index TimeSeriesBase<P, T>::count_appended_elements() const
 {
     Lock<P> lock(*this->mutex_ptr_);
     read_indexes();
@@ -109,7 +109,7 @@ Index TimeSeriesBase<P, T>::count_appended_elements()
 }
 
 template <typename P, typename T>
-Index TimeSeriesBase<P, T>::oldest_timeindex(bool wait)
+Index TimeSeriesBase<P, T>::oldest_timeindex(bool wait) const
 {
     Lock<P> lock(*this->mutex_ptr_);
     read_indexes();
@@ -135,14 +135,14 @@ Index TimeSeriesBase<P, T>::oldest_timeindex(bool wait)
 }
 
 template <typename P, typename T>
-T TimeSeriesBase<P, T>::newest_element()
+T TimeSeriesBase<P, T>::newest_element() const
 {
     Index timeindex = newest_timeindex();
     return (*this)[timeindex];
 }
 
 template <typename P, typename T>
-T TimeSeriesBase<P, T>::operator[](const Index& timeindex)
+T TimeSeriesBase<P, T>::operator[](const Index& timeindex) const
 {
     Lock<P> lock(*this->mutex_ptr_);
     read_indexes();
@@ -168,7 +168,7 @@ T TimeSeriesBase<P, T>::operator[](const Index& timeindex)
 }
 
 template <typename P, typename T>
-Timestamp TimeSeriesBase<P, T>::timestamp_ms(const Index& timeindex)
+Timestamp TimeSeriesBase<P, T>::timestamp_ms(const Index& timeindex) const
 {
     Lock<P> lock(*this->mutex_ptr_);
     read_indexes();
@@ -194,14 +194,14 @@ Timestamp TimeSeriesBase<P, T>::timestamp_ms(const Index& timeindex)
 }
 
 template <typename P, typename T>
-Timestamp TimeSeriesBase<P, T>::timestamp_s(const Index& timeindex)
+Timestamp TimeSeriesBase<P, T>::timestamp_s(const Index& timeindex) const
 {
     return timestamp_ms(timeindex) / 1000.;
 }
 
 template <typename P, typename T>
-bool TimeSeriesBase<P, T>::wait_for_timeindex(const Index& timeindex,
-                                              const double& max_duration_s)
+bool TimeSeriesBase<P, T>::wait_for_timeindex(
+    const Index& timeindex, const double& max_duration_s) const
 {
     Lock<P> lock(*this->mutex_ptr_);
     read_indexes();
@@ -259,7 +259,7 @@ void TimeSeriesBase<P, T>::append(const T& element)
 }
 
 template <typename P, typename T>
-size_t TimeSeriesBase<P, T>::length()
+size_t TimeSeriesBase<P, T>::length() const
 {
     Lock<P> lock(*this->mutex_ptr_);
     read_indexes();
@@ -267,7 +267,7 @@ size_t TimeSeriesBase<P, T>::length()
 }
 
 template <typename P, typename T>
-size_t TimeSeriesBase<P, T>::max_length()
+size_t TimeSeriesBase<P, T>::max_length() const
 {
     Lock<P> lock(*this->mutex_ptr_);
     read_indexes();
@@ -275,7 +275,7 @@ size_t TimeSeriesBase<P, T>::max_length()
 }
 
 template <typename P, typename T>
-bool TimeSeriesBase<P, T>::is_empty()
+bool TimeSeriesBase<P, T>::is_empty() const
 {
     if (!empty_)
     {
