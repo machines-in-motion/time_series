@@ -73,8 +73,9 @@ if(BUILD_TESTING)
   get_filename_component(CONFIG_PATH config ABSOLUTE)
   # create the executable
   add_executable(
-    test_time_series tests/main.cpp tests/test_basic_api.cpp
-    tests/test_monitor_signal.cpp tests/test_parallel_execution.cpp)
+    test_time_series
+    tests/main.cpp tests/test_basic_api.cpp tests/test_monitor_signal.cpp
+    tests/test_parallel_execution.cpp)
   # link to the created librairies and its dependencies
   target_link_libraries(test_time_series ${PROJECT_NAME} GTest::gtest)
   # declare the test as gtest
