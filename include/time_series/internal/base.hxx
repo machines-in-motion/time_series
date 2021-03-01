@@ -2,16 +2,19 @@
 // Vincent Berenz
 
 template <typename P, typename T>
-void TimeSeriesBase<P, T>::throw_if_sigint_received()
+void TimeSeriesBase<P, T>::throw_if_sigint_received() const
 {
-    if (signal_handler::SignalHandler::has_received_sigint())
+    // only throw if throw_on_sigint_ is true
+    if (throw_on_sigint_ &&
+        signal_handler::SignalHandler::has_received_sigint())
     {
         throw signal_handler::ReceivedSignal(SIGINT);
     }
 }
 
 template <typename P, typename T>
-TimeSeriesBase<P, T>::TimeSeriesBase(Index start_timeindex)
+TimeSeriesBase<P, T>::TimeSeriesBase(Index start_timeindex,
+                                     bool throw_on_sigint)
     : empty_(true), is_destructor_called_(false)
 {
     start_timeindex_ = start_timeindex;
@@ -20,8 +23,13 @@ TimeSeriesBase<P, T>::TimeSeriesBase(Index start_timeindex)
 
     tagged_timeindex_ = newest_timeindex_;
 
-    signal_handler::SignalHandler::initialize();
-    signal_monitor_thread_ = std::thread(&TimeSeriesBase::monitor_signal, this);
+    throw_on_sigint_ = throw_on_sigint;
+    if (throw_on_sigint)
+    {
+        signal_handler::SignalHandler::initialize();
+        signal_monitor_thread_ =
+            std::thread(&TimeSeriesBase::monitor_signal, this);
+    }
 }
 
 template <typename P, typename T>

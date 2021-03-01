@@ -30,7 +30,15 @@ template <typename P, typename T = int>
 class TimeSeriesBase : public TimeSeriesInterface<T>
 {
 public:
-    TimeSeriesBase(Index start_timeindex = 0);
+    /**
+     * @brief Constructor.
+     *
+     * @param start_timeindex  Time index of the first element.
+     * @param throw_on_sigint  If true, a signal_handler::ReceivedSignal
+     *     exception is thrown when a SIGINT signal is received while waiting in
+     *     one of the getter methods.
+     */
+    TimeSeriesBase(Index start_timeindex = 0, bool throw_on_sigint = true);
     TimeSeriesBase(TimeSeriesBase<P, T> &&other) noexcept;
     ~TimeSeriesBase();
     Index newest_timeindex(bool wait = true) const;
@@ -82,6 +90,10 @@ private:
     //! Set to true in destructor to indicate thread that it should terminate.
     std::atomic<bool> is_destructor_called_;
 
+    //! If true an exception is thrown if a SIGINT is received while waiting in
+    //! one of the methods.
+    bool throw_on_sigint_;
+
     /**
      * @brief Monitors if SIGINT was received and releases the lock if yes.
      *
@@ -92,7 +104,7 @@ private:
 
 protected:
     //! @brief Throw a ReceivedSignal exception if SIGINT was received.
-    static void throw_if_sigint_received();
+    void throw_if_sigint_received() const;
 };
 
 #include "base.hxx"
