@@ -85,7 +85,7 @@ endif()
 #
 # building documentation
 #
-# add_documentation()
+add_documentation()
 
 #
 # Install the package
