@@ -17,6 +17,7 @@
 using namespace real_time_tools;
 using namespace time_series;
 
+
 TEST(time_series_ut, basic)
 {
     TimeSeries<int> ts1(100);
@@ -95,6 +96,7 @@ TEST(time_series_ut, factories)
     ASSERT_EQ(follower2.newest_timeindex(), start_timeindex);
 }
 
+
 TEST(time_series_ut, serialized_multi_processes)
 {
     clear_memory(SEGMENT_ID);
@@ -109,10 +111,10 @@ TEST(time_series_ut, serialized_multi_processes)
     Index index1 = ts1.newest_timeindex();
     Index index2 = ts2.newest_timeindex();
     ASSERT_EQ(index1, index2);
-
     Type type2 = ts2[index2];
-    ASSERT_EQ(type1, type2);
+    ASSERT_TRUE(type1==type2);
 }
+
 
 TEST(time_series_ut, get_raw)
 {
@@ -127,7 +129,7 @@ TEST(time_series_ut, get_raw)
     shared_memory::Serializer<Type> serializer;
     Type type2;
     serializer.deserialize(serialized, type2);
-    ASSERT_EQ(type1, type2);
+    ASSERT_TRUE(type1==type2);
 }
 
 TEST(time_series_ut, full_round)
@@ -151,7 +153,7 @@ TEST(time_series_ut, full_round)
 
     Type type1 = ts1[index1];
     Type type2 = ts2[index2];
-    ASSERT_EQ(type1, type2);
+    ASSERT_TRUE(type1==type2);
 }
 
 void *add_element(void *args)
@@ -188,6 +190,7 @@ TEST(time_series_ut, newest_index_no_wait)
     ASSERT_EQ(index, -1);
 }
 
+
 void *add_element_mp(void *)
 {
     typedef MultiprocessTimeSeries<Type> Mpt;
@@ -222,6 +225,8 @@ TEST(time_series_ut, count_appended_elements)
     ASSERT_EQ(count, 205);
 }
 
+
+
 void *to_time_index(void *)
 {
     typedef MultiprocessTimeSeries<int> Mpt;
@@ -238,6 +243,8 @@ void *to_time_index(void *)
     }
     return nullptr;
 }
+
+
 
 TEST(time_series_ut, wait_for_time_index)
 {
@@ -302,3 +309,4 @@ TEST(time_series_ut, multi_processes_empty)
     ASSERT_FALSE(ts1.is_empty());
     ASSERT_FALSE(ts2.is_empty());
 }
+
