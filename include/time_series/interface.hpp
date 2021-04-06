@@ -9,6 +9,8 @@
 
 #include <cstddef>
 #include <limits>
+#include <tuple>
+#include <vector>
 
 namespace time_series
 {
@@ -33,6 +35,16 @@ const Index EMPTY = -1;
 template <typename T>
 class TimeSeriesInterface
 {
+public:
+    /**
+     * Container returned by the snapshot method
+     */
+    typedef std::tuple<T,         // element
+                       Index,     // time series Index
+                       Timestamp  // timestamp
+                       >
+        SnapshotItem;
+
 public:
     virtual ~TimeSeriesInterface()
     {
@@ -125,5 +137,11 @@ public:
      *  to the time series.
      */
     virtual bool is_empty() const = 0;
+
+    /**
+     * \brief Returns a lightweight hard copy of all elements, associated with
+     * their Index and time stamp. Warning: not a realtime safe method.
+     */
+    virtual std::vector<SnapshotItem> snapshot() const = 0;
 };
 }  // namespace time_series

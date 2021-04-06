@@ -307,7 +307,7 @@ void TimeSeriesBase<P, T>::monitor_signal()
     // We need to copy the pointer here because otherwize the system segfaults.
     // I am suspecting that the derefencing of the smart_pointer is not
     // thread safe.
-    std::shared_ptr<ConditionVariable<P> > local_condition_ptr = condition_ptr_;
+    std::shared_ptr<ConditionVariable<P>> local_condition_ptr = condition_ptr_;
     while (!local_condition_ptr)
     {
         local_condition_ptr = condition_ptr_;
@@ -322,4 +322,68 @@ void TimeSeriesBase<P, T>::monitor_signal()
     // Notify to release locks that could otherwise prevent the application from
     // terminating.
     local_condition_ptr->notify_all();
+}
+
+template <typename P, typename T>
+std::vector<std::tuple<T, Index, Timestamp>> TimeSeriesBase<P, T>::snapshot()
+    const
+{
+    std::vector<std::tuple<T, Index, Timestamp>> snap;
+    std::size_t max_length = this->max_length();
+
+    Lock<P> lock(*this->mutex_ptr_);
+    read_indexes();
+
+    T element;
+    Timestamp timestamp;
+
+    // the time series underlying data structure is not yet full
+    if (newest_timeindex_ < max_length)
+    {
+        // these indexes have been set with an element
+        for (std::size_t i = 0; i <= newest_timeindex_; i++)
+        {
+            this->history_elements_ptr_->get(i, element);
+            this->history_timestamps_ptr_->get(i, timestamp);
+            snap.push_back(std::make_tuple(element, i, timestamp));
+        }
+        if (newest_timeindex_ == max_length - 1)
+        {
+            snap.resize(max_length);
+            return snap;
+        }
+        // these indexes have not yet been set with an element
+        // timestamp at value -1 indicates this to the end-user.
+        for (std::size_t i = newest_timeindex_ + 1; i < max_length; i++)
+        {
+            snap.push_back(std::make_tuple(T(), -1, -1));
+        }
+        snap.resize(max_length);
+        return snap;
+    }
+
+    Index abs_newest = newest_timeindex_ % max_length;
+    Index abs_oldest = oldest_timeindex_ % max_length;
+    Index new_diff = newest_timeindex_ - abs_newest;
+    Index old_diff = oldest_timeindex_ - abs_oldest;
+
+    // underlying data structure full
+    for (std::size_t i = 0; i < max_length; i++)
+    {
+        Index timeindex;
+        if (i <= abs_newest)
+        {
+            timeindex = new_diff + i;
+        }
+        else
+        {
+            timeindex = old_diff + i;
+        }
+        this->history_elements_ptr_->get(timeindex % max_length, element);
+        this->history_timestamps_ptr_->get(timeindex % max_length, timestamp);
+        snap.push_back(std::make_tuple(element, timeindex, timestamp));
+    }
+
+    snap.resize(max_length);
+    return snap;
 }

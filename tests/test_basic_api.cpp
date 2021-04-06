@@ -17,7 +17,6 @@
 using namespace real_time_tools;
 using namespace time_series;
 
-
 TEST(time_series_ut, basic)
 {
     TimeSeries<int> ts1(100);
@@ -96,7 +95,6 @@ TEST(time_series_ut, factories)
     ASSERT_EQ(follower2.newest_timeindex(), start_timeindex);
 }
 
-
 TEST(time_series_ut, serialized_multi_processes)
 {
     clear_memory(SEGMENT_ID);
@@ -112,9 +110,8 @@ TEST(time_series_ut, serialized_multi_processes)
     Index index2 = ts2.newest_timeindex();
     ASSERT_EQ(index1, index2);
     Type type2 = ts2[index2];
-    ASSERT_TRUE(type1==type2);
+    ASSERT_TRUE(type1 == type2);
 }
-
 
 TEST(time_series_ut, get_raw)
 {
@@ -129,7 +126,7 @@ TEST(time_series_ut, get_raw)
     shared_memory::Serializer<Type> serializer;
     Type type2;
     serializer.deserialize(serialized, type2);
-    ASSERT_TRUE(type1==type2);
+    ASSERT_TRUE(type1 == type2);
 }
 
 TEST(time_series_ut, full_round)
@@ -153,7 +150,7 @@ TEST(time_series_ut, full_round)
 
     Type type1 = ts1[index1];
     Type type2 = ts2[index2];
-    ASSERT_TRUE(type1==type2);
+    ASSERT_TRUE(type1 == type2);
 }
 
 void *add_element(void *args)
@@ -190,7 +187,6 @@ TEST(time_series_ut, newest_index_no_wait)
     ASSERT_EQ(index, -1);
 }
 
-
 void *add_element_mp(void *)
 {
     typedef MultiprocessTimeSeries<Type> Mpt;
@@ -225,8 +221,6 @@ TEST(time_series_ut, count_appended_elements)
     ASSERT_EQ(count, 205);
 }
 
-
-
 void *to_time_index(void *)
 {
     typedef MultiprocessTimeSeries<int> Mpt;
@@ -243,8 +237,6 @@ void *to_time_index(void *)
     }
     return nullptr;
 }
-
-
 
 TEST(time_series_ut, wait_for_time_index)
 {
@@ -310,3 +302,74 @@ TEST(time_series_ut, multi_processes_empty)
     ASSERT_FALSE(ts2.is_empty());
 }
 
+TEST(time_series_ut, snapshot_not_full)
+{
+    // testing when the underlying data structure
+    // is not full
+    TimeSeries<int> ts(10);
+    for (int i = 0; i < 6; i++)
+    {
+        ts.append(i);
+    }
+    std::vector<std::tuple<int, Index, Timestamp>> snap = ts.snapshot();
+    ASSERT_EQ(std::get<0>(snap[1]), 1);
+    ASSERT_EQ(std::get<1>(snap[1]), 1);
+    ASSERT_EQ(std::get<1>(snap[6]), -1);
+    ASSERT_EQ(std::get<2>(snap[6]), -1);
+}
+
+TEST(time_series_ut, snapshot_exactly_full)
+{
+    // testing when the underlying data structure
+    // is exactly full
+    TimeSeries<int> ts(10);
+    for (int i = 0; i < 10; i++)
+    {
+        ts.append(i);
+    }
+    std::vector<std::tuple<int, Index, Timestamp>> snap = ts.snapshot();
+    for (int i = 0; i < 10; i++)
+    {
+        ASSERT_EQ(std::get<0>(snap[i]), i);
+        ASSERT_EQ(std::get<1>(snap[i]), i);
+    }
+}
+
+TEST(time_series_ut, snapshot_circular1)
+{
+    // testing after adding more than size of
+    // underlying data structure
+    TimeSeries<int> ts(10);
+    for (int i = 0; i < 12; i++)
+    {
+        ts.append(i);
+    }
+    std::vector<std::tuple<int, Index, Timestamp>> snap = ts.snapshot();
+    ASSERT_EQ(std::get<0>(snap[0]), 10);
+    ASSERT_EQ(std::get<1>(snap[0]), 10);
+    ASSERT_EQ(std::get<0>(snap[1]), 11);
+    ASSERT_EQ(std::get<1>(snap[1]), 11);
+    ASSERT_EQ(std::get<0>(snap[2]), 2);
+    ASSERT_EQ(std::get<1>(snap[2]), 2);
+}
+
+TEST(time_series_ut, snapshot_circular2)
+{
+    // alternative check: compairing snapshot
+    // to random access operator
+    time_series::TimeSeries<int> ts(100);
+    for (int i = 0; i < 310; i++)
+    {
+        ts.append(i + 100);
+    }
+    std::vector<std::tuple<int, time_series::Index, time_series::Timestamp>>
+        snap = ts.snapshot();
+    for (int i = 0; i < 100; i++)
+    {
+        std::tuple<int, time_series::Index, time_series::Timestamp> item =
+            snap[i];
+        int value = std::get<0>(item);
+        time_series::Index timeindex = std::get<1>(item);
+        ASSERT_EQ(value, ts[timeindex]);
+    }
+}

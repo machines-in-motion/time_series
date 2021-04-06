@@ -21,6 +21,9 @@
 // MultiprocessTimeSeries. Those are defined there.
 #include "time_series/internal/specialized_classes.hpp"
 
+// for usage in method: hard_copy
+#include "time_series/time_series.hpp"
+
 namespace time_series
 {
 // various shared memory segments are created based on the
