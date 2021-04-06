@@ -21,6 +21,9 @@
 // MultiprocessTimeSeries. Those are defined there.
 #include "time_series/internal/specialized_classes.hpp"
 
+// for usage in method: hard_copy
+#include "time_series/time_series.hpp"
+
 namespace time_series
 {
 // various shared memory segments are created based on the
@@ -210,6 +213,40 @@ public:
             timeindex % this->history_elements_ptr_->size());
     }
 
+  /**
+   * Return a single process hard copy of the time series.
+   * Not realtime safe. 
+   */
+  TimeSeries<T> hard_copy(bool throw_on_sigint=true)
+  {
+    size_t max_length=this->max_length();
+    TimeSeries<T> ts(max_length,this->start_timeindex_,throw_on_sigint);
+    std::shared_ptr<internal::Vector<internal::SingleProcess,T>> elements =
+      ts.get_elements();
+    std::shared_ptr<internal::Vector<internal::SingleProcess,Timestamp>> timestamps =
+      ts.get_timestamps();
+    internal::Lock<internal::MultiProcesses> lock(*this->mutex_ptr_);
+    read_indexes();
+    Timestamp timestamp;
+    T element;
+    for(Index timeindex=this->oldest_timeindex_;timeindex<=this->newest_timeindex_;timeindex++)
+      {
+	this->history_elements_ptr_->get(
+					 timeindex % this->history_elements_ptr_->size(),
+					 element);
+	elements->set(timeindex,element);
+	this->history_timestamps_ptr_->get(
+					   timeindex % this->history_timestamps_ptr_->size(),
+					   timestamp);
+	timestamps->set(timeindex,timestamp);
+      }
+    ts.start_timeindex_ = this->start_timeindex_;
+    ts.oldest_timeindex_ = this->oldest_timeindex_;
+    ts.newest_timeindex_ = this->newest_timeindex_;
+    ts.tagged_timeindex_ = this->tagged_timeindex_;
+    return ts;
+  }
+  
 protected:
     void read_indexes() const
     {

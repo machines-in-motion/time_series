@@ -59,5 +59,6 @@ protected:
     void write_indexes()
     {
     }
+
 };
 }  // namespace time_series

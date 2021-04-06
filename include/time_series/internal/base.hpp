@@ -60,6 +60,7 @@ public:
     bool is_empty() const;
 
 protected:
+
     // in case of multiprocesses: will be used to keep
     // indexes values aligned for all instances
     virtual void read_indexes() const = 0;
@@ -85,6 +86,13 @@ protected:
     std::shared_ptr<Vector<P, T> > history_elements_ptr_;
     std::shared_ptr<Vector<P, Timestamp> > history_timestamps_ptr_;
 
+  // for direct (non lock protected !) access to the underlying
+  // data structures. Because not lock protected, extreme cautious
+  // recommanded. Has been implement for the development of the method
+  // TimeSeries<T> MultiprocessTimeSeries<T>::hard_copy()
+  std::shared_ptr<Vector<P, T> > get_elements();
+  std::shared_ptr<Vector<P,Timestamp>> get_timestamps();
+  
 private:
     std::thread signal_monitor_thread_;
     //! Set to true in destructor to indicate thread that it should terminate.

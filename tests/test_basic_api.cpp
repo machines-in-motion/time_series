@@ -310,3 +310,30 @@ TEST(time_series_ut, multi_processes_empty)
     ASSERT_FALSE(ts2.is_empty());
 }
 
+TEST(time_series_ut, multi_processes_hard_copy)
+{
+  clear_memory(SEGMENT_ID);
+  MultiprocessTimeSeries<int> mts =
+    MultiprocessTimeSeries<int>::create_leader(SEGMENT_ID,100);
+  for (int i = 0; i < 205; i++)
+    {
+      mts.append(i);
+    }
+  TimeSeries<int> ts = mts.hard_copy();
+  Index oldest = mts.newest_timeindex();
+  Index newest = mts.oldest_timeindex();
+  ASSERT_EQ(oldest,ts.oldest_timeindex());
+  ASSERT_EQ(newest,ts.newest_timeindex());
+  ASSERT_EQ(mts.count_appended_elements(),
+	    ts.count_appended_elements());
+  ASSERT_EQ(mts.length(),
+	    ts.length());
+  ASSERT_EQ(mts.is_empty(),
+	    ts.is_empty());
+  for(Index i=oldest;i<=newest;i++)
+    {
+      ASSERT_EQ(mts[i],ts[i]);
+      ASSERT_EQ(mts.timestamp_ms(i),ts.timestamp_ms(i));
+    }
+  
+}

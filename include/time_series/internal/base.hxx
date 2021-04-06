@@ -323,3 +323,19 @@ void TimeSeriesBase<P, T>::monitor_signal()
     // terminating.
     local_condition_ptr->notify_all();
 }
+
+template <typename P, typename T>
+std::shared_ptr<Vector<P, T>> TimeSeriesBase<P, T>::get_elements()
+{
+  return history_elements_ptr_;
+}
+
+template <typename P, typename T>
+std::shared_ptr<Vector<P, Timestamp> > TimeSeriesBase<P, T>::get_timestamps()
+{
+  return history_timestamps_ptr_;
+}
+
+
+
+  
