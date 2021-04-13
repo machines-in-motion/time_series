@@ -329,7 +329,7 @@ std::vector<std::tuple<T, Index, Timestamp>> TimeSeriesBase<P, T>::snapshot()
     const
 {
     std::vector<std::tuple<T, Index, Timestamp>> snap;
-    std::size_t max_length = this->max_length();
+    int max_length = this->max_length();
 
     Lock<P> lock(*this->mutex_ptr_);
     read_indexes();
@@ -341,7 +341,7 @@ std::vector<std::tuple<T, Index, Timestamp>> TimeSeriesBase<P, T>::snapshot()
     if (newest_timeindex_ < max_length)
     {
         // these indexes have been set with an element
-        for (std::size_t i = 0; i <= newest_timeindex_; i++)
+        for (long int i = 0; i <= newest_timeindex_; i++)
         {
             this->history_elements_ptr_->get(i, element);
             this->history_timestamps_ptr_->get(i, timestamp);
@@ -354,7 +354,7 @@ std::vector<std::tuple<T, Index, Timestamp>> TimeSeriesBase<P, T>::snapshot()
         }
         // these indexes have not yet been set with an element
         // timestamp at value -1 indicates this to the end-user.
-        for (std::size_t i = newest_timeindex_ + 1; i < max_length; i++)
+        for (long int i = newest_timeindex_ + 1; i < max_length; i++)
         {
             snap.push_back(std::make_tuple(T(), -1, -1));
         }
@@ -368,7 +368,7 @@ std::vector<std::tuple<T, Index, Timestamp>> TimeSeriesBase<P, T>::snapshot()
     Index old_diff = oldest_timeindex_ - abs_oldest;
 
     // underlying data structure full
-    for (std::size_t i = 0; i < max_length; i++)
+    for (long int i = 0; i < max_length; i++)
     {
         Index timeindex;
         if (i <= abs_newest)
