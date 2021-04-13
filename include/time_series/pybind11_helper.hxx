@@ -12,13 +12,21 @@ void __create_python_bindings(pybind11::module& m, const std::string& classname)
     // variable)
 
     pybind11::class_<TS, std::shared_ptr<TS>>(m, classname.c_str())
-        .def("newest_timeindex", &TS::newest_timeindex)
+        .def("newest_timeindex",
+             &TS::newest_timeindex,
+             pybind11::arg("wait") = true)
         .def("count_appended_elements", &TS::count_appended_elements)
-        .def("oldest_timeindex", &TS::oldest_timeindex)
+        .def("oldest_timeindex",
+             &TS::oldest_timeindex,
+             pybind11::arg("wait") = true)
         .def("newest_element", &TS::newest_element)
         .def("timestamp_ms", &TS::timestamp_ms)
         .def("timestamp_s", &TS::timestamp_s)
-        .def("wait_for_timeindex", &TS::wait_for_timeindex)
+        .def("wait_for_timeindex",
+             &TS::wait_for_timeindex,
+             pybind11::arg("timeindex"),
+             pybind11::arg("max_duration_s") =
+                 std::numeric_limits<double>::quiet_NaN())
         .def("length", &TS::length)
         .def("max_length", &TS::max_length)
         .def("has_changed_since_tag", &TS::has_changed_since_tag)
