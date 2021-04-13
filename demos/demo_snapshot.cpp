@@ -26,8 +26,6 @@ void run()
     time_series::Index newest = ts.newest_timeindex(false);
     time_series::Index oldest = ts.oldest_timeindex(false);
 
-    std::cout << "oldest: " << oldest << " | " << ts[oldest] << "\n";
-
     for (int i = 0; i < 100; i++)
     {
         std::tuple<int, time_series::Index, time_series::Timestamp> item =

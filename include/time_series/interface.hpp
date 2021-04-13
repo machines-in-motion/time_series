@@ -36,16 +36,6 @@ template <typename T>
 class TimeSeriesInterface
 {
 public:
-    /**
-     * Container returned by the snapshot method
-     */
-    typedef std::tuple<T,         // element
-                       Index,     // time series Index
-                       Timestamp  // timestamp
-                       >
-        SnapshotItem;
-
-public:
     virtual ~TimeSeriesInterface()
     {
     }
@@ -142,6 +132,6 @@ public:
      * \brief Returns a lightweight hard copy of all elements, associated with
      * their Index and time stamp. Warning: not a realtime safe method.
      */
-    virtual std::vector<SnapshotItem> snapshot() const = 0;
+    virtual std::vector<std::tuple<T,Index,Timestamp>> snapshot() const = 0;
 };
 }  // namespace time_series
