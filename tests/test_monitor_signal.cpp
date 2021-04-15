@@ -16,7 +16,7 @@
 // Preparation
 
 #define TIME_SERIES_MAX_SIZE 200
-#define SEGMENT_ID "parallel_time_series_unittests"
+#define SEGMENT_ID "monitor_signal_unittests"
 
 std::shared_ptr<time_series::TimeSeriesInterface<Type> >
 construct_a_time_series(const bool& multiprocess)
@@ -38,7 +38,7 @@ construct_a_time_series(const bool& multiprocess)
 /******************************************************************************/
 // Unit tests
 
-TEST(parallel_time_series, monitor_signal_thread)
+TEST(DISABLED_monitor_signal, monitor_signal_thread)
 {
     // Init task.
     std::shared_ptr<time_series::TimeSeriesInterface<Type> > ts =
@@ -76,7 +76,7 @@ TEST(parallel_time_series, monitor_signal_thread)
 // via shared memory (as opposed to thread sharing a common instance of
 // TimeSeries)
 
-TEST(parallel_time_series, monitor_signal_multiprocess)
+TEST(DISABLED_monitor_signal, monitor_signal_multiprocess)
 {
     // Init task.
     std::shared_ptr<time_series::TimeSeriesInterface<Type> > ts =
