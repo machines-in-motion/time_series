@@ -18,7 +18,7 @@ using namespace real_time_tools;
 using namespace time_series;
 
 
-TEST(DISABLED_time_series_ut, basic)
+TEST(time_series_ut, basic)
 {
     TimeSeries<int> ts1(100);
     ts1.append(10);
@@ -27,7 +27,7 @@ TEST(DISABLED_time_series_ut, basic)
     ASSERT_EQ(value, 10);
 }
 
-TEST(DISABLED_time_series_ut, basic_multi_processes)
+TEST(time_series_ut, basic_multi_processes)
 {
     clear_memory(SEGMENT_ID);
     MultiprocessTimeSeries<int> ts1(SEGMENT_ID, 100, true);
@@ -47,7 +47,7 @@ TEST(DISABLED_time_series_ut, basic_multi_processes)
     ASSERT_EQ(value, 30);
 }
 
-TEST(DISABLED_time_series_ut, multi_processes_get_max_length)
+TEST(time_series_ut, multi_processes_get_max_length)
 {
     clear_memory(SEGMENT_ID);
     {
@@ -62,7 +62,7 @@ TEST(DISABLED_time_series_ut, multi_processes_get_max_length)
     }
 }
 
-TEST(DISABLED_time_series_ut, multi_processes_get_start_timeindex)
+TEST(time_series_ut, multi_processes_get_start_timeindex)
 {
     clear_memory(SEGMENT_ID);
     {
@@ -79,7 +79,7 @@ TEST(DISABLED_time_series_ut, multi_processes_get_start_timeindex)
     }
 }
 
-TEST(DISABLED_time_series_ut, factories)
+TEST(time_series_ut, factories)
 {
     clear_memory(SEGMENT_ID);
     typedef MultiprocessTimeSeries<double> Mt;
@@ -96,7 +96,7 @@ TEST(DISABLED_time_series_ut, factories)
 }
 
 
-TEST(DISABLED_time_series_ut, serialized_multi_processes)
+TEST(time_series_ut, serialized_multi_processes)
 {
     clear_memory(SEGMENT_ID);
 
@@ -115,7 +115,7 @@ TEST(DISABLED_time_series_ut, serialized_multi_processes)
 }
 
 
-TEST(DISABLED_time_series_ut, get_raw)
+TEST(time_series_ut, get_raw)
 {
     clear_memory(SEGMENT_ID);
     typedef MultiprocessTimeSeries<Type> Mpt;
@@ -131,7 +131,7 @@ TEST(DISABLED_time_series_ut, get_raw)
     ASSERT_TRUE(type1==type2);
 }
 
-TEST(DISABLED_time_series_ut, full_round)
+TEST(time_series_ut, full_round)
 {
     clear_memory(SEGMENT_ID);
 
@@ -163,7 +163,7 @@ void *add_element(void *args)
     return nullptr;
 }
 
-TEST(DISABLED_time_series_ut, basic_newest_element)
+TEST(time_series_ut, basic_newest_element)
 {
     TimeSeries<int> ts(100);
     RealTimeThread thread;
@@ -182,7 +182,7 @@ TEST(DISABLED_time_series_ut, basic_newest_element)
     thread2.join();
 }
 
-TEST(DISABLED_time_series_ut, newest_index_no_wait)
+TEST(time_series_ut, newest_index_no_wait)
 {
     TimeSeries<int> ts(100);
     time_series::Index index = ts.newest_timeindex(false);
@@ -201,7 +201,7 @@ void *add_element_mp(void *)
     return nullptr;
 }
 
-TEST(DISABLED_time_series_ut, multiprocesses_newest_element)
+TEST(time_series_ut, multiprocesses_newest_element)
 {
     clear_memory(SEGMENT_ID);
     typedef MultiprocessTimeSeries<Type> Mpt;
@@ -213,7 +213,7 @@ TEST(DISABLED_time_series_ut, multiprocesses_newest_element)
     thread.join();
 }
 
-TEST(DISABLED_time_series_ut, count_appended_elements)
+TEST(time_series_ut, count_appended_elements)
 {
     TimeSeries<int> ts(100);
     for (int i = 0; i < 205; i++)
@@ -245,7 +245,7 @@ void *to_time_index(void *)
 
 
 
-TEST(DISABLED_time_series_ut, wait_for_time_index)
+TEST(time_series_ut, wait_for_time_index)
 {
     clear_memory(SEGMENT_ID);
     typedef MultiprocessTimeSeries<int> Mpt;
@@ -259,7 +259,7 @@ TEST(DISABLED_time_series_ut, wait_for_time_index)
     thread.join();
 }
 
-TEST(DISABLED_time_series_ut, tag)
+TEST(time_series_ut, tag)
 {
     TimeSeries<int> ts(100);
     ts.append(10);
@@ -274,7 +274,7 @@ TEST(DISABLED_time_series_ut, tag)
     ASSERT_EQ(tagged_index, index);
 }
 
-TEST(DISABLED_time_series_ut, timestamps)
+TEST(time_series_ut, timestamps)
 {
     TimeSeries<int> ts(100);
     ts.append(10);
@@ -288,7 +288,7 @@ TEST(DISABLED_time_series_ut, timestamps)
     ASSERT_LT(stamp_ms2, stamp_ms + 1);
 }
 
-TEST(DISABLED_time_series_ut, empty)
+TEST(time_series_ut, empty)
 {
     TimeSeries<int> ts(100);
     ASSERT_TRUE(ts.is_empty());
@@ -296,7 +296,7 @@ TEST(DISABLED_time_series_ut, empty)
     ASSERT_FALSE(ts.is_empty());
 }
 
-TEST(DISABLED_time_series_ut, multi_processes_empty)
+TEST(time_series_ut, multi_processes_empty)
 {
     clear_memory(SEGMENT_ID);
     typedef MultiprocessTimeSeries<int> Mpt;

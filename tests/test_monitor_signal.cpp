@@ -38,7 +38,7 @@ construct_a_time_series(const bool& multiprocess)
 /******************************************************************************/
 // Unit tests
 
-TEST(DISABLED_monitor_signal, monitor_signal_thread)
+TEST(monitor_signal, monitor_signal_thread)
 {
     // Init task.
     std::shared_ptr<time_series::TimeSeriesInterface<Type> > ts =
@@ -76,7 +76,7 @@ TEST(DISABLED_monitor_signal, monitor_signal_thread)
 // via shared memory (as opposed to thread sharing a common instance of
 // TimeSeries)
 
-TEST(DISABLED_monitor_signal, monitor_signal_multiprocess)
+TEST(monitor_signal, monitor_signal_multiprocess)
 {
     // Init task.
     std::shared_ptr<time_series::TimeSeriesInterface<Type> > ts =

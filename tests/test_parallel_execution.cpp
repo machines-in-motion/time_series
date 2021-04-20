@@ -277,7 +277,7 @@ bool test_parallel_time_series_history(bool slow, bool multiprocesses)
     return true;
 }
 
-TEST(DISABLED_parallel_time_series, full_history)
+TEST(parallel_time_series, full_history)
 {
     bool slow = false;
     bool multiprocess = false;
@@ -285,7 +285,7 @@ TEST(DISABLED_parallel_time_series, full_history)
     EXPECT_TRUE(res);
 }
 
-TEST(DISABLED_parallel_time_series, partial_history)
+TEST(parallel_time_series, partial_history)
 {
     bool slow = true;
     bool multiprocess = false;
@@ -299,7 +299,7 @@ TEST(DISABLED_parallel_time_series, partial_history)
 // via shared memory (as opposed to thread sharing a common instance of
 // TimeSeries)
 
-TEST(DISABLED_parallel_time_series, multiprocesses_full_history)
+TEST(parallel_time_series, multiprocesses_full_history)
 {
     clear_memory(SEGMENT_ID);
     bool slow = false;
@@ -309,7 +309,7 @@ TEST(DISABLED_parallel_time_series, multiprocesses_full_history)
     clear_memory(SEGMENT_ID);
 }
 
-TEST(DISABLED_parallel_time_series, multiprocesses_partial_history)
+TEST(parallel_time_series, multiprocesses_partial_history)
 {
     clear_memory(SEGMENT_ID);
     bool slow = true;
