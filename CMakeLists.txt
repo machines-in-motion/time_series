@@ -61,6 +61,11 @@ add_executable(time_series_demo_multiprocess_read
 target_link_libraries(time_series_demo_multiprocess_read ${PROJECT_NAME})
 list(APPEND all_targets time_series_demo_multiprocess_read)
 
+add_executable(time_series_demo_snapshot
+               demos/demo_snapshot.cpp)
+target_link_libraries(time_series_demo_snapshot ${PROJECT_NAME})
+list(APPEND all_targets time_series_demo_snapshot)
+
 #
 # Add unit tests.
 #

@@ -58,6 +58,7 @@ public:
     Index tagged_timeindex() const;
     void append(const T &element);
     bool is_empty() const;
+    std::vector<std::tuple<T, Index, Timestamp>> snapshot() const;
 
 protected:
     // in case of multiprocesses: will be used to keep
@@ -80,10 +81,10 @@ protected:
     // see specialized_classes.hpp for
     // implementations depending on P
     // (SINGLEPROCESS or MULTIPROCESS)
-    std::shared_ptr<Mutex<P> > mutex_ptr_;
-    std::shared_ptr<ConditionVariable<P> > condition_ptr_;
-    std::shared_ptr<Vector<P, T> > history_elements_ptr_;
-    std::shared_ptr<Vector<P, Timestamp> > history_timestamps_ptr_;
+    std::shared_ptr<Mutex<P>> mutex_ptr_;
+    std::shared_ptr<ConditionVariable<P>> condition_ptr_;
+    std::shared_ptr<Vector<P, T>> history_elements_ptr_;
+    std::shared_ptr<Vector<P, Timestamp>> history_timestamps_ptr_;
 
 private:
     std::thread signal_monitor_thread_;
