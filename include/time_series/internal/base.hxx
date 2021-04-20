@@ -329,6 +329,7 @@ std::vector<std::tuple<T, Index, Timestamp>> TimeSeriesBase<P, T>::snapshot()
     const
 {
     std::vector<std::tuple<T, Index, Timestamp>> snap;
+
     int max_length = this->max_length();
 
     Lock<P> lock(*this->mutex_ptr_);
@@ -349,7 +350,9 @@ std::vector<std::tuple<T, Index, Timestamp>> TimeSeriesBase<P, T>::snapshot()
         }
         if (newest_timeindex_ == max_length - 1)
         {
-            snap.resize(max_length);
+	  snap.push_back(std::make_tuple(element,newest_timeindex_,-1));
+	  snap.push_back(std::make_tuple(element,oldest_timeindex_,-1));
+	  snap.resize(max_length+2);
             return snap;
         }
         // these indexes have not yet been set with an element
@@ -358,7 +361,10 @@ std::vector<std::tuple<T, Index, Timestamp>> TimeSeriesBase<P, T>::snapshot()
         {
             snap.push_back(std::make_tuple(T(), -1, -1));
         }
-        snap.resize(max_length);
+	// first two entries contains dummy values
+	snap.push_back(std::make_tuple(element,newest_timeindex_,-1));
+	snap.push_back(std::make_tuple(element,oldest_timeindex_,-1));
+        snap.resize(max_length+2);
         return snap;
     }
 
@@ -384,6 +390,8 @@ std::vector<std::tuple<T, Index, Timestamp>> TimeSeriesBase<P, T>::snapshot()
         snap.push_back(std::make_tuple(element, timeindex, timestamp));
     }
 
-    snap.resize(max_length);
+    snap.push_back(std::make_tuple(element,newest_timeindex_,-1));
+    snap.push_back(std::make_tuple(element,oldest_timeindex_,-1));
+    snap.resize(max_length+2);
     return snap;
 }

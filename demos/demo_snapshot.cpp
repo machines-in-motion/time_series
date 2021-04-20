@@ -23,8 +23,12 @@ void run()
 
     std::vector<std::tuple<int, time_series::Index, time_series::Timestamp>>
         snap = ts.snapshot();
-    time_series::Index newest = ts.newest_timeindex(false);
-    time_series::Index oldest = ts.oldest_timeindex(false);
+    std::size_t size = snap.size();
+
+    // the two items of snap contains the values of the
+    // newest and oldest elements
+    time_series::Index newest = std::get<1>(snap[size-2]);
+    time_series::Index oldest = std::get<1>(snap[size-1]);
 
     for (int i = 0; i < 100; i++)
     {
@@ -35,15 +39,15 @@ void run()
         time_series::Timestamp stamp = std::get<2>(item);
         if (timeindex == newest)
         {
-            std::cout << "* \t";
+            std::cout << "(newest) \t";
         }
         else if (timeindex == oldest)
         {
-            std::cout << "**\t";
+            std::cout << "(oldest) \t";
         }
         else
         {
-            std::cout << "  \t";
+            std::cout << "         \t";
         }
         std::cout << "data structure index: " << i << "\t|\t"
                   << "value(timeseries): " << ts[timeindex] << "\t"

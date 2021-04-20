@@ -130,7 +130,10 @@ public:
 
     /**
      * \brief Returns a lightweight hard copy of all elements, associated with
-     * their Index and time stamp. Warning: not a realtime safe method.
+     * their Index and time stamp. The last two items are "dummies" entries, the previous last
+     * entry's Index has the value of the index in the underlying datastruture corresponding to 
+     * the newest element timeindex and the last entry's Index has the value of the index in 
+     * the underlying datastruture corresponding to the oldest element timeindex 
      */
     virtual std::vector<std::tuple<T,Index,Timestamp>> snapshot() const = 0;
 };
