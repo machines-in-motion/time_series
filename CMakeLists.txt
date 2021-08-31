@@ -22,6 +22,7 @@ find_package(signal_handler REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(Boost REQUIRED COMPONENTS filesystem system thread)
 find_package(Threads REQUIRED)
+find_package(cereal REQUIRED)
 
 set(all_targets)
 
