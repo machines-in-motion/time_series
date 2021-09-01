@@ -15,16 +15,20 @@ string(APPEND CMAKE_CXX_FLAGS " -Wfatal-errors")
 #
 # Dependencies
 #
+find_package(ament_cmake REQUIRED)
+find_package(ament_cmake_python REQUIRED)
 find_package(mpi_cmake_modules REQUIRED)
 find_package(shared_memory REQUIRED)
 find_package(real_time_tools REQUIRED)
 find_package(signal_handler REQUIRED)
-find_package(Eigen3 REQUIRED)
 find_package(Boost REQUIRED COMPONENTS filesystem system thread)
-find_package(Threads REQUIRED)
-find_package(cereal REQUIRED)
+ament_export_dependencies(
+  shared_memory
+  signal_handler
+  Boost )
 
 set(all_targets)
+set(all_target_exports)
 
 #
 # library
@@ -43,7 +47,9 @@ target_link_libraries(${PROJECT_NAME} real_time_tools::real_time_tools)
 target_link_libraries(${PROJECT_NAME} signal_handler::signal_handler)
 target_link_libraries(${PROJECT_NAME} Eigen3::Eigen)
 # For the installation
+ament_export_interfaces(export_${PROJECT_NAME} HAS_LIBRARY_TARGET)
 list(APPEND all_targets ${PROJECT_NAME})
+list(APPEND all_target_exports export_${PROJECT_NAME})
 
 #
 # demos #
@@ -98,7 +104,7 @@ install(DIRECTORY include/ DESTINATION include)
 # command to install the library and binaries
 install(
   TARGETS ${all_targets}
-  EXPORT ${PROJECT_NAME}Targets
+  EXPORT ${all_target_exports}
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib
   RUNTIME DESTINATION bin
@@ -106,4 +112,4 @@ install(
   DESTINATION include)
 
 # Export this package as a cmake package.
-generate_cmake_package()
+ament_package()
