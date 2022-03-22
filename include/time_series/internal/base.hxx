@@ -156,8 +156,10 @@ T TimeSeriesBase<P, T>::operator[](const Index& timeindex) const
     read_indexes();
     if (timeindex < oldest_timeindex_)
     {
-        throw std::invalid_argument(
-            "you tried to access time_series element which is too old.");
+        throw std::invalid_argument("you tried to access time_series element " +
+                                    std::to_string(timeindex) +
+                                    " which is too old (oldest in buffer is " +
+                                    std::to_string(oldest_timeindex_) + ").");
     }
 
     while (newest_timeindex_ < timeindex)
@@ -182,8 +184,10 @@ Timestamp TimeSeriesBase<P, T>::timestamp_ms(const Index& timeindex) const
     read_indexes();
     if (timeindex < oldest_timeindex_)
     {
-        throw std::invalid_argument(
-            "you tried to access time_series element which is too old.");
+        throw std::invalid_argument("you tried to access time_series element " +
+                                    std::to_string(timeindex) +
+                                    " which is too old (oldest in buffer is " +
+                                    std::to_string(oldest_timeindex_) + ").");
     }
 
     while (newest_timeindex_ < timeindex)
@@ -215,8 +219,10 @@ bool TimeSeriesBase<P, T>::wait_for_timeindex(
     read_indexes();
     if (timeindex < oldest_timeindex_)
     {
-        throw std::invalid_argument(
-            "you tried to access time_series element which is too old.");
+        throw std::invalid_argument("you tried to access time_series element " +
+                                    std::to_string(timeindex) +
+                                    " which is too old (oldest in buffer is " +
+                                    std::to_string(oldest_timeindex_) + ").");
     }
 
     while (newest_timeindex_ < timeindex)

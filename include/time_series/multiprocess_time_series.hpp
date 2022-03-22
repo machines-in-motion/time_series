@@ -195,7 +195,10 @@ public:
         if (timeindex < this->oldest_timeindex_)
         {
             throw std::invalid_argument(
-                "you tried to access time_series element which is too old.");
+                "you tried to access time_series element " +
+                std::to_string(timeindex) +
+                " which is too old (oldest in buffer is " +
+                std::to_string(this->oldest_timeindex_) + ").");
         }
 
         while (this->newest_timeindex_ < timeindex)
